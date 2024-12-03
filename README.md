@@ -8,15 +8,15 @@
 
 수업시간에 배우지 않은 내용이거나, 구현이 힘든 부분은 [WiringPi](https://github.com/WiringPi/WiringPi)라는 라이브러리를 사용할 겁니다. [WiringPi 구현 예시 코드들](https://github.com/WiringPi/WiringPi/tree/master/examples)을 참고하여 코드를 짜 봅시다.
 
-### RPLCD
-
-우리가 사용하는 부품 중에는 LCD가 있습니다. 이 LCD에는 I2C 모듈이 탑재되어 있어 배선이 쉽지만, C언어로 코딩하기 매우 어렵습니다. 따라서 LCD 관련 함수를 제공하는 파이썬 라이브러리인 `RPLCD`를 사용합시다.
-
-### 컴파일 방법
+#### 컴파일 방법
 
 ```
 gcc -o main main.c -l wiringPi
 ```
+
+### RPLCD
+
+우리가 사용하는 부품 중에는 LCD가 있습니다. 이 LCD에는 I2C 모듈이 탑재되어 있어 배선이 쉽지만, C언어로 코딩하기 매우 어렵습니다. 따라서 LCD 관련 함수를 제공하는 파이썬 라이브러리인 `RPLCD`를 사용합시다.
 
 ## 핀
 
