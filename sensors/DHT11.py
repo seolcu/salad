@@ -1,15 +1,22 @@
-#!/usr/bin/python3 
+import time
+import adafruit_dht
+import board
 
-import Adafruit_DHT      # 라이브러리 불러오기
+dht_device = adafruit_dht.DHT11(board.D3)
 
-sensor = Adafruit_DHT.DHT11     #  sensor 객체 생성
+while True:
+    try:
+        temperature_c = dht_device.temperature
+        temperature_f = temperature_c * (9 / 5) + 32
 
-pin = 2                        # Data핀의 GPIO핀 넘버
+        humidity = dht_device.humidity
 
-humidity, temperature = Adafruit_DHT.read_retry(sensor, pin)   # 센서 객체에서 센서 값(ㅇ노도, 습도) 읽기
+        print(
+            "Temp:{:.1f} C / {:.1f} F    Humidity: {}%".format(
+                temperature_c, temperature_f, humidity
+            )
+        )
+    except RuntimeError as err:
+        print(err.args[0])
 
-      
-if humidity is not None and temperature is not None:   #습도 및 온도 값이 모두 제대로 읽혔다면 
-    print('Temp={0:0.1f}*C  Humidity={1:0.1f}%'.format(temperature, humidity))  # 온도, 습도 순으로 표시
-else:                                                  # 에러가 생겼다면 
-    print('Failed to get reading. Try again!')        #  에러 표시
+    time.sleep(2.0)
