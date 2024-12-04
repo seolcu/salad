@@ -1,68 +1,92 @@
-#include <wiringPi.h>  
-#include <stdio.h>  
-#include <stdlib.h>  
-#include <stdint.h>  
-#define MAX_TIME 85  
-#define DHT11PIN 4  // VCC -> 5V(No.4 PIN), DATA -> GPIO4(No.16 PIN), GND -> GND(No.14 PIN)
+#include <wiringPi.h>
+#include <stdio.h>
 
-int dht11_val[5]={0,0,0,0,0};  
+#define MAXTIMINGS 100
+#define DHTPIN 4 // VCC -> 5V(No.4 PIN), DATA -> GPIO4(No.7 PIN), GND -> GND(No.14 PIN)
+
+int dhtVal[5] = { 0, 0, 0, 0, 0 };
+
+void readData()
+{
+ int laststate = HIGH;
+ int counter  = 0;
+ int j  = 0, i;
+ float f; /* fahrenheit */
+
+ dhtVal[0] = dhtVal[1] = dhtVal[2] = dhtVal[3] = dhtVal[4] = 0;
+
+ /* pull pin down for 18 milliseconds */
+ pinMode( DHTPIN, OUTPUT );
+ digitalWrite( DHTPIN, LOW );
+ delay( 18 );
+ 
+ /* then pull it up for 40 microseconds */
+ digitalWrite( DHTPIN, HIGH );
+ delayMicroseconds( 40 );
+ 
+ /* prepare to read the pin */
+ pinMode( DHTPIN, INPUT );
+
+ /* detect change and read data */
+ for ( i = 0; i < MAXTIMINGS; i++ )
+ {
+  counter = 0;
+  while ( digitalRead( DHTPIN ) == laststate )
+  {
+   counter++;
+   delayMicroseconds( 1 );
+   if ( counter == 255 )
+   {
+    break;
+   }
+  }
   
-void dht11_read_val()  
-{  
-  uint8_t lststate=HIGH;  
-  uint8_t counter=0;  
-  uint8_t j=0,i;  
-  float farenheit;  
-  for(i=0;i<5;i++)  
-     dht11_val[i]=0;  
-  pinMode(DHT11PIN,OUTPUT);  
-  digitalWrite(DHT11PIN,LOW);  
-  delay(50);  
+  laststate = digitalRead( DHTPIN );
 
-  digitalWrite(DHT11PIN,HIGH);  
-  delayMicroseconds(100);
+  if ( counter == 255 )
+   break;
 
-  pinMode(DHT11PIN,INPUT);  
-  for(i=0;i<MAX_TIME;i++)  
-  {  
-    counter=0;  
-    while(digitalRead(DHT11PIN)==lststate){  
-      counter++;  
-      delayMicroseconds(1);  
-      if(counter==255)  
-        break;  
-    }  
+  /* ignore first 3 transitions */
+  if ( (i >= 4) && (i % 2 == 0) )
+  {
+   /* shove each bit into the storage bytes */
+   dhtVal[j / 8] <<= 1;
+   if ( counter > 50 )
+    dhtVal[j / 8] |= 1;
+   j++;
+  }
+ }
 
-    lststate=digitalRead(DHT11PIN);  
-    if(counter==255)  
-       break;  
-    // top 3 transistions are ignored  
-    if((i>=4)&&(i%2==0)){  
-      dht11_val[j/8]<<=1;  
-      if(counter>16)  
-        dht11_val[j/8]|=1;  
-      j++;  
-    }  
-  }  
-  // verify cheksum and print the verified data  
-  if((j>=40)&&(dht11_val[4]==((dht11_val[0]+dht11_val[1]+dht11_val[2]+dht11_val[3])& 0xFF)))  
-  {  
-    farenheit=dht11_val[2]*9./5.+32;  
-    printf("Humidity = %d.%d %% Temperature = %d.%d *C (%.1f *F)\n",dht11_val[0],dht11_val[1],dht11_val[2],dht11_val[3],farenheit);  
-  }  
-  else  
-    printf("Invalid Data!!\n");  
-}  
-  
-int main(void)  
-{  
-  printf("Interfacing Temperature and Humidity Sensor (DHT11) With Raspberry Pi\n");  
-  if(wiringPiSetup()==-1)  
-    exit(1);  
-  while(1)  
-  {  
-     dht11_read_val();  
-     delay(5000);  
-  }  
-  return 0;  
+ /*
+  * check we read 40 bits (8bit x 5 ) + verify checksum in the last byte
+  * print it out if data is good
+  */
+ if ( (j >= 40) &&
+      (dhtVal[4] == ( (dhtVal[0] + dhtVal[1] + dhtVal[2] + dhtVal[3]) & 0xFF) ) )
+ {
+  f = dhtVal[2] * 9. / 5. + 32;
+  printf( "Humidity = %d.%d %% Temperature = %d.%d *C (%.1f *F)\n",
+   dhtVal[0], dhtVal[1], dhtVal[2], dhtVal[3], f );
+ }else  {
+  printf( "Invalid Data! \n" );
+ }
+ return;
+}
+
+
+
+int main( void )
+{
+ printf( "Raspberry Pi wiringPi DHT11 Temperature test program\n" );
+
+ if ( wiringPiSetup() == -1 )
+  return -1;
+
+ while ( 1 )
+ {
+  readData();
+  delay( 3000 ); /* wait 3sec to refresh */
+ }
+
+ return(0);
 }

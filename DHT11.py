@@ -1,40 +1,15 @@
-import time
-import adafruit_dht
-import threading
-import os
-import glob
-from board import *
+#!/usr/bin/python3 
 
+import Adafruit_DHT      # 라이브러리 불러오기
 
-# GPIO4
-SENSOR_PIN = D4
+sensor = Adafruit_DHT.DHT11     #  sensor 객체 생성
 
-dht11 = adafruit_dht.DHT11(SENSOR_PIN, use_pulseio=False)
-temperature = 0
-humidity = 0
+pin = 2                        # Data핀의 GPIO핀 넘버
 
+humidity, temperature = Adafruit_DHT.read_retry(sensor, pin)   # 센서 객체에서 센서 값(ㅇ노도, 습도) 읽기
 
-def get_dht():
-    global temperature
-    global humidity
-
-    while True:
-        try:
-            temperature = dht11.temperature
-            humidity = dht11.humidity
-            print(f"Humidity= {humidity:.2f}")
-            print(f"Temperature= {temperature:.2f}°C")
-        except RuntimeError:
-            print("Failed")
-        time.sleep(0.5)
-
-
-dht_thread = threading.Thread(target=get_dht)
-# server_thread=threading.Thread(target=server)
-dht_thread.daemon = True
-# server_thread.daemon=True
-# server_thread.start()
-dht_thread.start()
-# server_thread.join()
-dht_thread.join()
-print("end...")
+      
+if humidity is not None and temperature is not None:   #습도 및 온도 값이 모두 제대로 읽혔다면 
+    print('Temp={0:0.1f}*C  Humidity={1:0.1f}%'.format(temperature, humidity))  # 온도, 습도 순으로 표시
+else:                                                  # 에러가 생겼다면 
+    print('Failed to get reading. Try again!')        #  에러 표시
