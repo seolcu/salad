@@ -4,6 +4,9 @@
 #define MAXTIMINGS 100
 #define DHTPIN 3 // VCC -> 5V(No.4 PIN), DATA -> GPIO4(No.7 PIN), GND -> GND(No.14 PIN)
 
+// Condition that < 18 || > 35
+// In C, DHTPIN is GPIO. In Python, DHTPIN No is BCM.
+
 int dhtVal[5] = {0, 0, 0, 0, 0};
 
 void readData()
