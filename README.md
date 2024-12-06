@@ -16,6 +16,14 @@ Makefile을 사용하여 컴파일하고 실행합니다. 추가하고 싶은 �
 source ./.venv/bin/activate
 ```
 
+## 네이밍 컨벤션
+
+- 변수명은 `snake_case`로 작성합니다.
+- 함수명은 `snake_case`로 작성합니다.
+- 상수는 `UPPER_SNAKE_CASE`로 작성합니다.
+- 파일명은 `snake_case`로 작성합니다.
+- 들여쓰기는 4칸을 사용합니다.
+
 ## 핀
 
 ### 라즈베리파이 핀 할당 표
