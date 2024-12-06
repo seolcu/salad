@@ -6,7 +6,7 @@ Makefile을 사용하여 컴파일하고 실행합니다.
 
 - 컴파일: `make`
 - 실행: `./program`
-- 오브젝트 파일 삭제: `make clean`
+- 빌드 결과물 삭제: `make clean`
 
 ## Python3 가상환경(.venv) 활성화 방법
 
