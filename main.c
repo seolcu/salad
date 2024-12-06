@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "sensors/dht11.h"
-#include "sensors/soil_moisture.h"
+#include "sensors/soilmoisture.h"
 
 int main(void)
 {
@@ -24,9 +24,9 @@ int main(void)
             printf("Good condition. The current temperature is %.1f°C\n", DHT11_temp);
         }
 
-        float soil_moisture = get_soil_moisture();
+        float soilmoisture = get_soilmoisture();
 
-        printf("토양습도 : %.2f%%\n", soil_moisture);
+        printf("토양습도 : %.2f%%\n", soilmoisture);
 
         delay(3000);
     }

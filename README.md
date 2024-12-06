@@ -23,6 +23,7 @@ source ./.venv/bin/activate
 - 상수는 `UPPER_SNAKE_CASE`로 작성합니다.
 - 파일명은 `snake_case`로 작성합니다.
 - 들여쓰기는 4칸을 사용합니다.
+- 부품명은 띄우지 않고 한 단어로 표기합니다. (soilmoisture, dotmatrix, lightsensor, ...)
 
 ## 핀
 
