@@ -35,7 +35,7 @@ int main(void)
         printf("현재 온도: %.1f°C\n", DHT11_temp);
 
         float soilmoisture = get_soilmoisture();
-        if (soilmoisture <= 15.0)
+        if (soilmoisture <= 20.0)
         {
             strcat(status, "Dry!");
             printf("[!] 토양습도: 너무 건조합니다.\n");
@@ -66,7 +66,7 @@ int main(void)
             set_lcd_text("Well Done!");
         }
 
-        delay(2000);
+        delay(1000);
     }
 
     return 0;

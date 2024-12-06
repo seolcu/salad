@@ -11,13 +11,16 @@
 
 int dht_val[5] = {0, 0, 0, 0, 0};
 
+// 측정이 안 되었을 때, 이전의 값을 사용하기 위한 변수
+static float prev_temperature;
+
 // DHT11 온습도 센서에서 온도값을 읽어오는 함수.
 float get_temperature()
 {
      int last_state = HIGH;
      int counter = 0;
      int j = 0, i;
-     float dht11_temp = -1; // 온습도센서가 측정할 온도 변수, 초기화는 -1로 하여 오류 시 반환할 값으로 설정해놓는다.
+     float temperature = -1; // 온습도센서가 측정할 온도 변수, 초기화는 -1로 하여 오류 시 반환할 값으로 설정해놓는다.
 
      dht_val[0] = dht_val[1] = dht_val[2] = dht_val[3] = dht_val[4] = 0;
 
@@ -70,15 +73,16 @@ float get_temperature()
      if ((j >= 40) &&
          (dht_val[4] == ((dht_val[0] + dht_val[1] + dht_val[2] + dht_val[3]) & 0xFF)))
      {
-          dht11_temp = dht_val[2] + dht_val[3] * 0.1;
+          temperature = dht_val[2] + dht_val[3] * 0.1;
      }
      else
      {
-          printf("Data not good, retry...\n");
-          return get_temperature();
+          printf("Data not good, reusing previous value...\n");
+          return prev_temperature;
      }
 
-     return dht11_temp;
+     prev_temperature = temperature;
+     return temperature;
 }
 
 /*
