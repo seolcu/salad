@@ -3,9 +3,7 @@
 #include "DHT11.h"
 
 #define MAXTIMINGS 100
-#define DHTPIN 3 
-
-// VCC -> 5V(No.4 PIN), DATA -> GPIO3(BCM : 22), GND -> GND(No.14 PIN)
+#define DHTPIN 3 // 라즈베리파이 (15) `GPIO. 3` / `BCM. 22`
 
 // 해당 센서는 온습도센서로, 식물을 키우는 환경의 온도를 측정함.
 // 실내 온도가 18도 미만 혹은 35도 초과일 경우 이벤트 발생
@@ -13,12 +11,13 @@
 
 int dhtVal[5] = {0, 0, 0, 0, 0};
 
-DHT11_Data readData()
+// DHT11 온습도 센서에서 온도값을 읽어오는 함수.
+float get_temperature()
 {
      int laststate = HIGH;
      int counter = 0;
      int j = 0, i;
-     DHT11_Data values = {0.0, 0.0}; 
+     float DHT11_temp = -1; // 온습도센서가 측정할 온도 변수, 초기화는 -1로 하여 오류 시 반환할 값으로 설정해놓는다.
 
      dhtVal[0] = dhtVal[1] = dhtVal[2] = dhtVal[3] = dhtVal[4] = 0;
 
@@ -71,15 +70,14 @@ DHT11_Data readData()
      if ((j >= 40) &&
          (dhtVal[4] == ((dhtVal[0] + dhtVal[1] + dhtVal[2] + dhtVal[3]) & 0xFF)))
      {
-          values.humidity = dhtVal[0] + dhtVal[1] * 0.1;
-          values.temperature = dhtVal[2] + dhtVal[3] * 0.1;
+          DHT11_temp = dhtVal[2] + dhtVal[3] * 0.1;
      }
      else
      {
           printf("Invalid Data! \n");
      }
 
-     return values;
+     return DHT11_temp;
 }
 
 /*
@@ -92,10 +90,10 @@ int main(void)
 
      while (1)
      {
-          readData();
-          delay(3000); 
+          get_temperature();
+          delay(3000);
      }
 
      return (0);
-} 
+}
 */
