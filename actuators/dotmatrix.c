@@ -153,13 +153,15 @@ int main()
     delay(1000);
     draw_sad();
     delay(1000);
+    draw_neutral();
+    delay(1000);
     draw_kim();
     delay(1000);
     draw_yeong();
     delay(1000);
     draw_min();
     delay(1000);
-    draw_neutral();
+    draw_smile();
 
     return 0;
 }
