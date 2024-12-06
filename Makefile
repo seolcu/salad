@@ -7,7 +7,7 @@ LDFLAGS = -lwiringPi
 # 타겟 실행 파일 이름
 TARGET = program
 
-# 소스 파일들
+# 소스 파일들. 추가하고 싶은 파일이 있으면 이곳에 추가
 SRCS = main.c sensors/DHT11.c
 
 # 목적 파일들 (.c -> .o)
