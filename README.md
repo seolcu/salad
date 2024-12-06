@@ -10,9 +10,7 @@
 
 #### 컴파일 방법
 
-```
-gcc -o main main.c -l wiringPi
-```
+Makefile을 사용
 
 ### RPLCD
 

@@ -1,22 +1,24 @@
 #include <wiringPi.h>
 #include <stdio.h>
+#include "DHT11.h"
 
 #define MAXTIMINGS 100
 #define DHTPIN 3 
 
 // VCC -> 5V(No.4 PIN), DATA -> GPIO3(BCM : 22), GND -> GND(No.14 PIN)
 
+// 해당 센서는 온습도센서로, 식물을 키우는 환경의 온도를 측정함.
 // 실내 온도가 18도 미만 혹은 35도 초과일 경우 이벤트 발생
 // C언어일 경우, DHTPIN 번호가 GPIO.n 즉, wPi와 같고, Python일 경우, BCM과 같다.
 
 int dhtVal[5] = {0, 0, 0, 0, 0};
 
-void readData()
+DHT11_Data readData()
 {
      int laststate = HIGH;
      int counter = 0;
      int j = 0, i;
-     float fahrenheit; // °F 화씨 온도 표현 변수
+     DHT11_Data values = {0.0, 0.0}; 
 
      dhtVal[0] = dhtVal[1] = dhtVal[2] = dhtVal[3] = dhtVal[4] = 0;
 
@@ -69,17 +71,18 @@ void readData()
      if ((j >= 40) &&
          (dhtVal[4] == ((dhtVal[0] + dhtVal[1] + dhtVal[2] + dhtVal[3]) & 0xFF)))
      {
-          fahrenheit = dhtVal[2] * 9. / 5. + 32;
-          printf("Humidity = %d.%d %% Temperature = %d.%d *C (%.1f *F)\n",
-                 dhtVal[0], dhtVal[1], dhtVal[2], dhtVal[3], fahrenheit);
+          values.humidity = dhtVal[0] + dhtVal[1] * 0.1;
+          values.temperature = dhtVal[2] + dhtVal[3] * 0.1;
      }
      else
      {
           printf("Invalid Data! \n");
      }
-     return;
+
+     return values;
 }
 
+/*
 int main(void)
 {
      printf("Raspberry Pi wiringPi DHT11 Temperature test program\n");
@@ -90,8 +93,9 @@ int main(void)
      while (1)
      {
           readData();
-          delay(3000); /* wait 3sec to refresh */
+          delay(3000); 
      }
 
      return (0);
-}
+} 
+*/
