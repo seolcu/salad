@@ -16,15 +16,15 @@ unsigned char smile_pattern[8] = {
     0b01000010,
     0b00111100};
 unsigned char sad_pattern[8] = {
-    0b01111110,
-    0b10000001,
+    0b00111100,
+    0b01000010,
     0b10100101,
     0b10000001,
     0b10011001,
     0b10100101,
-    0b10000001,
-    0b01111110};
-unsigned char mupyojeong_pattern[8] = {
+    0b01000010,
+    0b00111100};
+unsigned char neutral_pattern[8] = {
     0b00111100,
     0b01000010,
     0b10100101,
@@ -106,11 +106,11 @@ void draw_sad()
         send_command(row + 1, sad_pattern[row]);
     }
 }
-void draw_mupyojeong()
+void draw_neutral()
 {
     for (int row = 0; row < 8; row++)
     {
-        send_command(row + 1, mupyojeong_pattern[row]);
+        send_command(row + 1, neutral_pattern[row]);
     }
 }
 void draw_kim()
@@ -149,7 +149,17 @@ int main()
     // 도트 매트릭스에 화면을 그리는 코드 추가하는 부분
     // 아래 두 명령은 그것의 예시
     clear();
+    draw_smile();
+    delay(1000);
     draw_sad();
+    delay(1000);
+    draw_kim();
+    delay(1000);
+    draw_yeong();
+    delay(1000);
+    draw_min();
+    delay(1000);
+    draw_neutral();
 
     return 0;
 }
