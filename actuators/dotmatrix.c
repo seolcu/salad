@@ -61,7 +61,7 @@ unsigned char min_pattern[8] = {
     0b10000000,
     0b11111111};
 
-void setup()
+void pin_setup()
 {
     wiringPiSetup();
     wiringPiSPISetup(SPI_CHANNEL, SPI_SPEED);
@@ -135,33 +135,36 @@ void draw_min()
     }
 }
 
-int main()
+void dotmatrix_init()
 {
-    setup();
-
-    // 매트릭스 초기화 명령어
+    pin_setup();
     send_command(0x09, 0x00); // Decode mode: none
     send_command(0x0A, 0x03); // Intensity: medium
     send_command(0x0B, 0x07); // Scan limit: all rows
     send_command(0x0C, 0x01); // Shutdown register: normal operation
     send_command(0x0F, 0x00); // Display test: off
-
-    // 도트 매트릭스에 화면을 그리는 코드 추가하는 부분
-    // 아래 두 명령은 그것의 예시
-    clear();
-    draw_smile();
-    delay(1000);
-    draw_sad();
-    delay(1000);
-    draw_neutral();
-    delay(1000);
-    draw_kim();
-    delay(1000);
-    draw_yeong();
-    delay(1000);
-    draw_min();
-    delay(1000);
-    draw_smile();
-
-    return 0;
 }
+
+// int main()
+// {
+//     dotmatrix_init();
+
+//     // 도트 매트릭스에 화면을 그리는 코드 추가하는 부분
+//     // 아래 두 명령은 그것의 예시
+//     clear();
+//     draw_smile();
+//     delay(1000);
+//     draw_sad();
+//     delay(1000);
+//     draw_neutral();
+//     delay(1000);
+//     draw_kim();
+//     delay(1000);
+//     draw_yeong();
+//     delay(1000);
+//     draw_min();
+//     delay(1000);
+//     draw_smile();
+
+//     return 0;
+// }

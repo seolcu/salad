@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "actuators/dotmatrix.h"
 #include "actuators/lcd.h"
 #include "sensors/dht11.h"
 #include "sensors/soilmoisture.h"
@@ -12,6 +13,8 @@ int main(void)
 {
     if (wiringPiSetup() == -1)
         return -1;
+
+    dotmatrix_init();
 
     while (1)
     {
@@ -54,10 +57,12 @@ int main(void)
 
         if (strcmp(status, "") != 0)
         {
+            draw_sad();
             set_lcd_text(status);
         }
         else
         {
+            draw_smile();
             set_lcd_text("Well Done!");
         }
 
