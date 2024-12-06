@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include "sensors/dht11.h"
 #include "sensors/soilmoisture.h"
+#include "sensors/photoresistor.h"
 
 int main(void)
 {
@@ -27,6 +28,17 @@ int main(void)
         float soilmoisture = get_soilmoisture();
 
         printf("토양습도 : %.2f%%\n", soilmoisture);
+
+        int is_bright = get_brightness();
+
+        if (is_bright)
+        {
+            printf("밝아요\n");
+        }
+        else
+        {
+            printf("어두워요\n");
+        }
 
         delay(3000);
     }
