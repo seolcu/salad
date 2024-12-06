@@ -1,6 +1,7 @@
 {
   "files.associations": {
     "wiringpi.h": "c",
-    "dht.h": "c"
+    "dht.h": "c",
+    "soilmoisture.h": "c"
   }
 }

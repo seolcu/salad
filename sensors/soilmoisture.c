@@ -6,8 +6,9 @@
 #define SPI_CHANNEL 1
 #define SPI_SPEED 1000000
 #define MCP3008_CHANNEL 0
-#define CS_PIN 7 // 파이의 CS1번 핀. CS0은 도트매트릭스 연결됨
+#define CS_PIN 11 // 라즈베리파이 (26) `CE1` / `wPi. 11`
 
+// 토양습도 센서의 값을 읽어오는 함수. % (퍼센트) 단위로 반환한다.
 float get_soilmoisture()
 {
     if (wiringPiSPISetup(SPI_CHANNEL, SPI_SPEED) == -1)
