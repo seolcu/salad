@@ -2,10 +2,12 @@
 #include <stdio.h>
 
 #define MAXTIMINGS 100
-#define DHTPIN 3 // VCC -> 5V(No.4 PIN), DATA -> GPIO4(No.7 PIN), GND -> GND(No.14 PIN)
+#define DHTPIN 3 
 
-// Condition that < 18 || > 35
-// In C, DHTPIN is GPIO. In Python, DHTPIN No is BCM.
+// VCC -> 5V(No.4 PIN), DATA -> GPIO3(BCM : 22), GND -> GND(No.14 PIN)
+
+// 실내 온도가 18도 미만 혹은 35도 초과일 경우 이벤트 발생
+// C언어일 경우, DHTPIN 번호가 GPIO.n 즉, wPi와 같고, Python일 경우, BCM과 같다.
 
 int dhtVal[5] = {0, 0, 0, 0, 0};
 
@@ -14,7 +16,7 @@ void readData()
      int laststate = HIGH;
      int counter = 0;
      int j = 0, i;
-     float f; /* fahrenheit */
+     float fahrenheit; // °F 화씨 온도 표현 변수
 
      dhtVal[0] = dhtVal[1] = dhtVal[2] = dhtVal[3] = dhtVal[4] = 0;
 
@@ -67,9 +69,9 @@ void readData()
      if ((j >= 40) &&
          (dhtVal[4] == ((dhtVal[0] + dhtVal[1] + dhtVal[2] + dhtVal[3]) & 0xFF)))
      {
-          f = dhtVal[2] * 9. / 5. + 32;
+          fahrenheit = dhtVal[2] * 9. / 5. + 32;
           printf("Humidity = %d.%d %% Temperature = %d.%d *C (%.1f *F)\n",
-                 dhtVal[0], dhtVal[1], dhtVal[2], dhtVal[3], f);
+                 dhtVal[0], dhtVal[1], dhtVal[2], dhtVal[3], fahrenheit);
      }
      else
      {
