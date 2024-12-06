@@ -76,7 +76,7 @@ void send_command(unsigned char address, unsigned char data)
     wiringPiSPIDataRW(SPI_CHANNEL, buffer, 2);
 }
 
-void setLED(int row, int col, int value)
+void set_led(int row, int col, int value)
 {
     unsigned char buffer[2];
     buffer[0] = row + 1;
