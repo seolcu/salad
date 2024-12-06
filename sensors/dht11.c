@@ -3,11 +3,11 @@
 #include "dht11.h"
 
 #define MAXTIMINGS 100
-#define DHTPIN 3 // 라즈베리파이 (15) `GPIO. 3` / `BCM. 22`
+#define PIN 3 // 라즈베리파이 (15) `GPIO. 3` / `BCM. 22`
 
 // 해당 센서는 온습도센서로, 식물을 키우는 환경의 온도를 측정함.
 // 실내 온도가 18도 미만 혹은 35도 초과일 경우 이벤트 발생
-// C언어일 경우, DHTPIN 번호가 GPIO.n 즉, wPi와 같고, Python일 경우, BCM과 같다.
+// C언어일 경우, PIN 번호가 GPIO.n 즉, wPi와 같고, Python일 경우, BCM과 같다.
 
 int dht_val[5] = {0, 0, 0, 0, 0};
 
@@ -22,22 +22,22 @@ float get_temperature()
      dht_val[0] = dht_val[1] = dht_val[2] = dht_val[3] = dht_val[4] = 0;
 
      /* pull pin down for 18 milliseconds */
-     pinMode(DHTPIN, OUTPUT);
-     digitalWrite(DHTPIN, LOW);
+     pinMode(PIN, OUTPUT);
+     digitalWrite(PIN, LOW);
      delay(18);
 
      /* then pull it up for 40 microseconds */
-     digitalWrite(DHTPIN, HIGH);
+     digitalWrite(PIN, HIGH);
      delayMicroseconds(40);
 
      /* prepare to read the pin */
-     pinMode(DHTPIN, INPUT);
+     pinMode(PIN, INPUT);
 
      /* detect change and read data */
      for (i = 0; i < MAXTIMINGS; i++)
      {
           counter = 0;
-          while (digitalRead(DHTPIN) == last_state)
+          while (digitalRead(PIN) == last_state)
           {
                counter++;
                delayMicroseconds(1);
@@ -47,7 +47,7 @@ float get_temperature()
                }
           }
 
-          last_state = digitalRead(DHTPIN);
+          last_state = digitalRead(PIN);
 
           if (counter == 255)
                break;
