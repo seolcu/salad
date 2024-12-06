@@ -24,7 +24,9 @@ float get_soilmoisture()
     digitalWrite(CS_PIN, LOW);
     wiringPiSPIDataRW(SPI_CHANNEL, buffer, 3);
     digitalWrite(CS_PIN, HIGH); // 이 함수의 digitalWrite LOW HIGH는 CS1번 핀을 사용하기 위해 활성화/비활성화를 해 주는 과정이다.
+    // data 값은 0 ~ 1023 사이의 값이다. 0에 가까울수록 습도가 높다.
     int data = ((buffer[1] & 3) << 8) + buffer[2];
-    float moisture = (float)data / 1023.0 * 100.0;
+    // 습도를 의미하는 값이므로, moisture 값은 data의 값이 작아질수록 커진다.
+    float moisture = 100.0 - (float)data / 1023.0 * 100.0;
     return moisture;
 }
