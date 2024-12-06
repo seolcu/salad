@@ -4,6 +4,7 @@ adafruit-circuitpython-connectionmanager==3.1.2
 adafruit-circuitpython-dht==4.0.6
 adafruit-circuitpython-requests==4.1.8
 adafruit-circuitpython-typing==1.11.2
+Adafruit-DHT==1.4.0
 Adafruit-PlatformDetect==3.75.0
 Adafruit-PureIO==1.1.11
 binho-host-adapter==0.1.6
