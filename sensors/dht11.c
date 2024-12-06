@@ -74,7 +74,8 @@ float get_temperature()
      }
      else
      {
-          printf("Invalid Data! \n");
+          printf("Data not good, retry...\n");
+          return get_temperature();
      }
 
      return dht11_temp;

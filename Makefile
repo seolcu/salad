@@ -8,7 +8,7 @@ LDFLAGS = -lwiringPi
 TARGET = program
 
 # 소스 파일들. 추가하고 싶은 파일이 있으면 이곳에 추가
-SRCS = main.c sensors/dht11.c sensors/soilmoisture.c sensors/photoresistor.c
+SRCS = main.c actuators/lcd.c sensors/dht11.c sensors/soilmoisture.c sensors/photoresistor.c
 
 # 목적 파일들 (.c -> .o)
 OBJS = $(SRCS:.c=.o)
