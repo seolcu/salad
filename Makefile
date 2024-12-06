@@ -1,7 +1,8 @@
 # 컴파일러 설정
 CC = gcc
 CFLAGS = -Wall -Wextra
-LDFLAGS = -l wiringPi
+# 라이브러리 링크 플래그 추가
+LDFLAGS = -lwiringPi
 
 # 타겟 실행 파일 이름
 TARGET = program
@@ -17,7 +18,7 @@ all: $(TARGET)
 
 # 실행 파일 생성 규칙
 $(TARGET): $(OBJS)
-	$(CC) $(OBJS) -o $(TARGET) -l wiringPi
+	$(CC) $(OBJS) $(LDFLAGS) -o $(TARGET)
 
 # 목적 파일 생성 규칙
 %.o: %.c
@@ -29,7 +30,3 @@ clean:
 
 # phony 타겟 지정
 .PHONY: all clean
-
-# 의존성 설정
-main.o: main.c sensors/DHT11.h sensors/DHT11.c
-DHT11.o: math.c sensors/DHT11.h sensors/DHT11.c
