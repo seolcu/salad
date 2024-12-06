@@ -1,13 +1,14 @@
 #include <stdio.h>
 #include <wiringPi.h>
 #include <wiringPiSPI.h>
+#include "soil_moisture.h"
 
 #define SPI_CHANNEL 1
 #define SPI_SPEED 1000000
 #define MCP3008_CHANNEL 0
 #define CS_PIN 7 // 파이의 CS1번 핀. CS0은 도트매트릭스 연결됨
 
-float get_soilMoisture()
+float get_soil_moisture()
 {
     if (wiringPiSPISetup(SPI_CHANNEL, SPI_SPEED) == -1)
     {
