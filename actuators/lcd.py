@@ -62,6 +62,7 @@ def handle_client(client_socket, addr):
         data = client_socket.recv(BUFFER_SIZE).decode()
         print(f"클라이언트 {addr}로부터 수신: {data}")
         lcd_write_row(DATA_ROW, data)
+        time.sleep(1)
         print(f"클라이언트 {addr} 연결 종료")
 
     except ConnectionResetError:
