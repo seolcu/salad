@@ -2,10 +2,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-// Define GPIO pin for the sensor#define MOTION_IN 0 // GPIO17 for WiringPi
 
 volatile int eventCounter = 0; // Event counter for motion detection
-#define MOTION_IN 0
+#define MOTION_IN 0 //WiringPi 기준 0번 핀 (GPIO 17번 핀)
 
 // Interrupt service routine
 void myInterrupt(void)
@@ -15,10 +14,10 @@ void myInterrupt(void)
 
 int main(void)
 {
-    // Initialize WiringPi
+    //WiringPi 초기화
     if (wiringPiSetup() < 0)
     {
-        printf("Unable to setup wiringPi\n");
+        printf("MotionSensor : wiringPi 셋업에 실패했습니다.\n");
         return 1;
     }
 

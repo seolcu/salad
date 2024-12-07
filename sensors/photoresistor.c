@@ -11,33 +11,3 @@ int get_brightness()
     int light_val = digitalRead(PIN);
     return light_val;
 }
-
-// int main(void)
-// {
-//     // WiringPi 초기화
-//     if (wiringPiSetup() == -1)
-//     {
-//         return -1;
-//     }
-
-//     pinMode(PIN, INPUT);
-
-//     while (1)
-//     {
-//         // GPIO 핀에서 값을 읽음
-//         int light_val = digitalRead(PIN);
-
-//         if (light_val == HIGH)
-//         {
-//             printf("Brightness\n"); // HIGH: 밝은 상태
-//         }
-//         else
-//         {
-//             printf("Darkness\n"); // LOW: 어두운 상태
-//         }
-
-//         delay(3000); // 3초 대기
-//     }
-
-//     return 0;
-// }
