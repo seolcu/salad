@@ -39,7 +39,7 @@ int send_localhost_text(char *text, int port)
 
     // 메시지 전송
     send(sock, text, strlen(text), 0);
-    printf("localhost:%d로 전송된 메시지: %s\n\n", port, text);
+    printf("localhost : %d로 전송된 메시지: %s\n\n", port, text);
 
     close(sock);
     return 0;

@@ -1,5 +1,6 @@
 #include <wiringPi.h>
 #include <stdio.h>
+#include "../utility/write_to_file.h"
 
 #define PIN 2 // 라즈베리파이 (13) `GPIO. 2`
 
@@ -9,5 +10,6 @@ int get_brightness()
     // LDR_PIN을 입력 모드로 설정
     pinMode(PIN, INPUT);
     int light_val = digitalRead(PIN);
+    write_to_file_int("/tmp/light", light_val);
     return light_val;
 }

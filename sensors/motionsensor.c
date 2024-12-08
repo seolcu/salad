@@ -33,13 +33,16 @@ int enable_motionsensor()
 
             // 사람 감지 시 수행할 로직 작성 부분
             send_localhost_text("MOTION_DETECTED", 50002);
+            // 잠시 lock했습니다 ^^ ㅎㅎ;
             return 1;
         }
+
         else
         {
-            // printf("움직임 감지 없음.\n");
+            printf("움직임 감지 없음.\n\n");
         }
-        delay(2000); // Delay for 0.5 seconds
+
+        delay(10000); // Delay for 10 seconds, 감지가 안 됐어도 10초 대기
     }
 }
 

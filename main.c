@@ -30,7 +30,6 @@
 // 6~24시간	70~90%	거의 포화 상태에 도달하며, 잔류 수분이 천천히 이동.
 // 24시간 이후	90~100%	포화 상태에 도달. 더 이상의 물 흡수는 제한적이며 배수가 시작될 수 있음.
 
-
 int main(void)
 {
     if (wiringPiSetup() == -1)
@@ -49,9 +48,8 @@ int main(void)
             strcat(status, "Cold! ");
             printf("[!] 온도: 너무 춥습니다.\n");
             printf("현재 온도: %.1f°C\n", DHT11_temp);
-
         }
-        
+
         else if (DHT11_temp >= 35.0) // 온도가 너무 높을 경우
         {
             strcat(status, "Hot! ");
@@ -99,8 +97,6 @@ int main(void)
             draw_smile();
             set_lcd_text("Well Done!");
         }
-
-        delay(3000);
     }
 
     return 0;
