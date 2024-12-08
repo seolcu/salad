@@ -14,6 +14,7 @@
 #include "sensors/photoresistor.h"
 #include "sensors/motionsensor.h"
 #include "utility/send_localhost_text.h"
+#include "utility/delay.h"
 #include "communication/tts.h"
 
 // 디버그 모드: 테스트를 위해 딜레이를 최소화함.
@@ -96,7 +97,7 @@ float detect_noise(float value) // 센서값이 튀는 것을 감지하여 적�
 
 void *t_temperature()
 {
-    float prev_temperature;
+    static float prev_temperature = 0.0;
     float temperature = detect_noise(prev_temperature); // 튀는 값 잡고, 전역변수에 온도값 반영.
 
     int event;
@@ -134,9 +135,9 @@ void *t_temperature()
         prev_temperature = temperature;
 
         if (DEBUG_MODE)
-            delay(1000);
+            delay_second(5);
         else
-            delay(30000); // 1시간마다 온도 측정, 테스트를 위해 시간을 짧게 만들어 놓음.
+            delay_hour(1);
     }
 }
 
@@ -166,9 +167,9 @@ void *t_soilmoisture()
         printf("--------------------------------\n\n");
 
         if (DEBUG_MODE)
-            delay(1000);
+            delay_second(5);
         else
-            delay(60000); // 12시간마다 토양습도 측정, 테스트를 위해 시간을 짧게 만들어 놓음.
+            delay_hour(12); // 12시간마다 토양습도 측정, 테스트를 위해 시간을 짧게 만들어 놓음.
     }
 }
 
@@ -197,9 +198,9 @@ void *t_brightness()
         printf("--------------------------------\n\n");
 
         if (DEBUG_MODE)
-            delay(1000);
+            delay_second(5);
         else
-            delay(20000); // 1시간마다 밝기 측정, 테스트를 위해 시간을 짧게 만들어 놓음.
+            delay_hour(1); // 1시간마다 밝기 측정, 테스트를 위해 시간을 짧게 만들어 놓음.
     }
 }
 
