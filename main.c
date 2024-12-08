@@ -18,8 +18,12 @@
 #include "communication/tts.h"
 
 // 디버그 모드: 테스트를 위해 딜레이를 최소화하고 센서가 더 민감해짐.
-#define DEBUG_MODE 0
+#define DEBUG_MODE 1
+#define FAST_DELAY 1
 #define ENABLE_MOTIONSENSOR 1
+#define ENABLE_TEMPERATURE 1
+#define ENABLE_SOILMOISTURE 1
+#define ENABLE_BRIGHTNESS 1
 
 char status_temperature[16] = ""; // 현재 식물 상태 저장 배열 전역변수
 char status_soilmoisture[16] = "";
@@ -98,8 +102,8 @@ float detect_noise(float value) // 센서값이 튀는 것을 감지하여 적�
 
 void *t_temperature()
 {
-    static float prev_temperature = 0.0;
-    float temperature = detect_noise(prev_temperature); // 튀는 값 잡고, 전역변수에 온도값 반영.
+    static float prev_temperature = 22.5;
+    float temperature = 22.5;
 
     float lower_threshold = 16.0;
     float upper_threshold = 30.0;
@@ -111,8 +115,9 @@ void *t_temperature()
     }
 
     int event;
-    while (1)
+    while (ENABLE_TEMPERATURE)
     {
+        float temperature = detect_noise(prev_temperature); // 튀는 값 잡고, 전역변수에 온도값 반영.
         event = 0;
 
         if (temperature <= lower_threshold)
@@ -145,7 +150,7 @@ void *t_temperature()
         prev_temperature = temperature;
 
         if (DEBUG_MODE)
-            delay_second(3);
+            delay_second(FAST_DELAY);
         else
             delay_hour(1);
     }
@@ -159,7 +164,7 @@ void *t_soilmoisture()
     {
         dry_threshold = 30.0;
     }
-    while (1)
+    while (ENABLE_SOILMOISTURE)
     {
         soilmoisture = get_soilmoisture();
 
@@ -180,7 +185,7 @@ void *t_soilmoisture()
         printf("--------------------------------\n\n");
 
         if (DEBUG_MODE)
-            delay_second(3);
+            delay_second(FAST_DELAY);
         else
             delay_hour(12); // 12시간마다 토양습도 측정, 테스트를 위해 시간을 짧게 만들어 놓음.
     }
@@ -188,8 +193,8 @@ void *t_soilmoisture()
 
 void *t_brightness()
 {
-    int is_bright;
-    while (1)
+    int is_bright = 1;
+    while (ENABLE_BRIGHTNESS)
     {
         is_bright = get_brightness();
 
@@ -211,7 +216,7 @@ void *t_brightness()
         printf("--------------------------------\n\n");
 
         if (DEBUG_MODE)
-            delay_second(3);
+            delay_second(FAST_DELAY);
         else
             delay_hour(1); // 1시간마다 밝기 측정, 테스트를 위해 시간을 짧게 만들어 놓음.
     }
