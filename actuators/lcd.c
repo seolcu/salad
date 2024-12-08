@@ -12,7 +12,7 @@
 // LCD 아랫줄에 텍스트를 출력한다.
 int set_lcd_text(char *text)
 {
-    send_localhost_text(text, PORT);
+    send_localhost_text(text, PORT, 0);
     return 0;
 }
 

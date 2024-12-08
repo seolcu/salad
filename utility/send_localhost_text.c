@@ -7,7 +7,7 @@
 #include <arpa/inet.h>
 
 // 연결을 시작하고, 메시지를 전송하고, 연결을 종료하는 함수.
-int send_localhost_text(char *text, int port)
+int send_localhost_text(char *text, int port, int print_message)
 {
     int sock = 0;
     struct sockaddr_in serv_addr;
@@ -39,7 +39,8 @@ int send_localhost_text(char *text, int port)
 
     // 메시지 전송
     send(sock, text, strlen(text), 0);
-    printf("localhost : %d로 전송된 메시지: %s\n\n", port, text);
+    if (print_message)
+        printf("localhost : %d로 전송된 메시지: %s\n\n", port, text);
 
     close(sock);
     return 0;

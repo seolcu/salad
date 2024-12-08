@@ -6,6 +6,8 @@ from dotenv import load_dotenv
 import time
 import json
 
+DELAY_AFTER_CONVERSATION = 60  # 대화 종료 후 대기 시간 (초)
+
 
 class InteractivePlant:
     def __init__(self):
@@ -162,6 +164,8 @@ class InteractivePlant:
                             self.send_to_tts_server(farewell)
                             # 대화 기록 초기화
                             self.conversation_history = []
+                            # 대화가 끝나자마자 말 걸지 않게, 대기 시간을 둠
+                            time.sleep(DELAY_AFTER_CONVERSATION)
                             break  # 내부 루프를 종료하고 모션 감지 대기 상태로 복귀
 
                         # 응답 생성 및 재생

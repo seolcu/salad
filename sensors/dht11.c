@@ -20,7 +20,7 @@ float get_temperature()
      int last_state = HIGH;
      int counter = 0;
      int j = 0, i;
-     float temperature = -1.0; // DHT11 온습도센서가 측정할 온도 변수, 초기화는 -1로 하여 오류 시 반환할 값으로 설정해놓는다.
+     float temperature;
 
      while (1)
      {
@@ -81,6 +81,4 @@ float get_temperature()
                delay(500);
           }
      }
-
-     return -100.0;
 }

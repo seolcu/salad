@@ -1,7 +1,6 @@
 #include <wiringPi.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include "../utility/send_localhost_text.h"
 
 volatile int eventCounter = 0; // Event counter for motion detection
 #define MOTION_IN 0            // WiringPi 기준 0번 핀 (GPIO 17번 핀)
@@ -12,7 +11,8 @@ volatile int eventCounter = 0; // Event counter for motion detection
 //     eventCounter++;
 // }
 
-int enable_motionsensor()
+// 움직임을 1회 감지하는 함수. 감지되면 1을, 감지되지 않으면 0을 반환한다.
+int check_motion()
 {
     pinMode(MOTION_IN, INPUT);
     // if (wiringPiISR(MOTION_IN, INT_EDGE_RISING, &myInterrupt) < 0)
@@ -21,28 +21,17 @@ int enable_motionsensor()
     //     return 1;
     // }
 
-    printf("적외선 모션 센서 작동중...\n\n");
-
-    while (1)
+    if (digitalRead(MOTION_IN) > 0)
     {
-        if (digitalRead(MOTION_IN) > 0)
-        {
-            // printf("적외선 센서에 움직임이 감지되었습니다. Total Events: %d\n", eventCounter);
-            printf("적외선 센서에 움직임이 감지되었습니다.\n\n");
-            // eventCounter = 0; // Reset counter after processing
-
-            // 사람 감지 시 수행할 로직 작성 부분
-            send_localhost_text("MOTION_DETECTED", 50002);
-            // 잠시 lock했습니다 ^^ ㅎㅎ;
-            return 1;
-        }
-
-        else
-        {
-            printf("움직임 감지 없음.\n\n");
-        }
-
-        delay(10000); // Delay for 10 seconds, 감지가 안 됐어도 10초 대기
+        // printf("적외선 센서에 움직임이 감지되었습니다. Total Events: %d\n", eventCounter);
+        printf("적외선 센서에 움직임이 감지되었습니다.\n\n");
+        // eventCounter = 0; // Reset counter after processing
+        return 1;
+    }
+    else
+    {
+        // printf("움직임 감지 없음.\n");
+        return 0;
     }
 }
 
