@@ -18,7 +18,7 @@
 #include "communication/tts.h"
 
 // 디버그 모드: 테스트를 위해 딜레이를 최소화하고 센서가 더 민감해짐.
-#define DEBUG_MODE 1
+#define DEBUG_MODE 0
 
 char status_temperature[16] = ""; // 현재 식물 상태 저장 배열 전역변수
 char status_soilmoisture[16] = "";
