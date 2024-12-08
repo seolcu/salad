@@ -21,6 +21,16 @@
 // 다육식물 및 선인장: 20% - 40% (건조한 환경에 적합)
 // 관엽식물: 21% - 60% (종류에 따라 다름)
 
+// 시간별 (토양)습도 변화
+// 다음은 점토질 토양에서 물을 흡수한 후 시간별로 예상되는 습도 변화입니다
+// 시간 경과	토양 습도 (%)	설명
+// 0~1시간	20~30%	초기 건조 상태. 물이 표면에서 빠르게 흡수되기 시작.
+// 1~3시간	30~50%	물이 점차 깊은 층으로 스며들며, 습도가 증가.
+// 3~6시간	50~70%	흙의 중간 층까지 물이 도달하며, 점토가 포화 상태에 가까워짐.
+// 6~24시간	70~90%	거의 포화 상태에 도달하며, 잔류 수분이 천천히 이동.
+// 24시간 이후	90~100%	포화 상태에 도달. 더 이상의 물 흡수는 제한적이며 배수가 시작될 수 있음.
+
+
 int main(void)
 {
     if (wiringPiSetup() == -1)
@@ -34,24 +44,34 @@ int main(void)
 
         float DHT11_temp = get_temperature();
 
-        if (DHT11_temp <= 18.0)
+        if ((DHT11_temp <= 18.0) && (DHT11_temp != -100.0)) // 온도가 너무 낮을 경우
         {
-            strcat(status, "Cold!");
+            strcat(status, "Cold! ");
             printf("[!] 온도: 너무 춥습니다.\n");
+            printf("현재 온도: %.1f°C\n", DHT11_temp);
+
         }
-        else if (DHT11_temp >= 35.0)
+        
+        else if (DHT11_temp >= 35.0) // 온도가 너무 높을 경우
         {
-            strcat(status, "Hot!");
+            strcat(status, "Hot! ");
             printf("[!] 온도: 너무 덥습니다.\n");
+            printf("현재 온도: %.1f°C\n", DHT11_temp);
         }
-        printf("현재 온도: %.1f°C\n", DHT11_temp);
+
+        else // 온도가 적합한 경우
+        {
+            printf("현재 온도: %.1f°C\n", DHT11_temp);
+        }
 
         float soilmoisture = get_soilmoisture();
+
         if (soilmoisture <= 20.0)
         {
             strcat(status, "Dry!");
             printf("[!] 토양습도: 너무 건조합니다.\n");
         }
+
         printf("현재 토양습도 : %.2f%%\n", soilmoisture);
 
         int is_bright = get_brightness();
@@ -60,6 +80,7 @@ int main(void)
         {
             printf("현재 밝기: 밝음\n");
         }
+
         else
         {
             strcat(status, "Dark!");
@@ -72,13 +93,14 @@ int main(void)
             draw_sad();
             set_lcd_text(status);
         }
+
         else
         {
             draw_smile();
             set_lcd_text("Well Done!");
         }
 
-        delay(1000);
+        delay(3000);
     }
 
     return 0;

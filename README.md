@@ -25,6 +25,12 @@ source ./.venv/bin/activate
 - 들여쓰기는 4칸을 사용합니다.
 - 부품명은 띄우지 않고 한 단어로 표기합니다. (soilmoisture, dotmatrix, lightsensor, ...)
 
+## 소켓 포트
+
+- LCD: 50000
+- TTS (Text-to-Speech): 50001
+- 대화 프로그램 (MOTION_DETECTED): 50002
+
 ## 핀
 
 ### 라즈베리파이 핀 할당 표
