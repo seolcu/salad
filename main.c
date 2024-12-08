@@ -19,6 +19,7 @@
 
 // 디버그 모드: 테스트를 위해 딜레이를 최소화하고 센서가 더 민감해짐.
 #define DEBUG_MODE 0
+#define ENABLE_MOTIONSENSOR 1
 
 char status_temperature[16] = ""; // 현재 식물 상태 저장 배열 전역변수
 char status_soilmoisture[16] = "";
@@ -244,7 +245,7 @@ void *t_LCD_Dot()
 void *t_motion()
 {
     int motion_detected = 0;
-    while (1)
+    while (ENABLE_MOTIONSENSOR)
     {
         motion_detected = check_motion();
         if (motion_detected)
