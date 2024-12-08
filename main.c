@@ -14,6 +14,7 @@
 #include "sensors/photoresistor.h"
 #include "sensors/motionsensor.h"
 #include "utility/send_localhost_text.h"
+#include "communication/tts.h"
 
 // 디버그 모드: 테스트를 위해 딜레이를 최소화함.
 #define DEBUG_MODE 1
@@ -39,20 +40,75 @@ char status_brightness[16] = "";
 // 3~6시간	50~70%	흙의 중간 층까지 물이 도달하며, 점토가 포화 상태에 가까워짐.
 // 6~24시간	70~90%	거의 포화 상태에 도달하며, 잔류 수분이 천천히 이동.
 // 24시간 이후	90~100%	포화 상태에 도달. 더 이상의 물 흡수는 제한적이며 배수가 시작될 수 있음.
+float abs_fl(float num1, float num2) // | num1 - num2 |에 대한 절댓값을 구하는 함수
+{
+    if ((num1 - num2) < 0)
+    {
+        return -(num1 - num2);
+    }
+
+    else if ((num1 - num2) > 0)
+    {
+        return (num1 - num2);
+    }
+
+    else // num1 - num2 = 0인 경우
+    {
+        return 0;
+    }
+}
+
+float detect_noise(float value) // 센서값이 튀는 것을 감지하여 적절한 값으로 설정해주는 함수, value : 센서의 측정 값
+{
+    float current_temp = get_temperature();
+    float second_temp;
+
+    if (abs_fl(value, current_temp) > 5.0)
+    {
+        second_temp = get_temperature();
+
+        if (abs_fl(current_temp, second_temp) < 1.0)
+        {
+            return current_temp;
+        }
+
+        else
+        {
+            return second_temp;
+        }
+        // 측정한 온도 값이 이전 값과 5도 이상 차이 날 경우, 다시 온도를 측정한다.
+        // 만약 다시 측정한 값도 기존 값과 비슷한 차이를 보일 경우, 그 값을 적용한다. = 튄 것이 아닌 환경 변화로 인한 급격한 오도 변화로 판단
+        // 측정한 온도 값(첫 번째 측정한 값(current_temp))이 튄 값으로 판단될 경우, 한 번 더 측정한 값으로 업데이트해준다.
+    }
+
+    else
+    {
+        return current_temp; // 기존 온도값과 측정 온도값이 5도 이하의 차이라면 그 값으로 온도값을 업데이트 한다.
+    }
+    // case 1: //토양습도센서 (12시간 단위 측정을 기준으로 만듬)
+    //     current_soilmost = *(float*)value;
+    //     if(abs(soilmoisture - current_soilmost) > 25.0){ //12시간 후 측정 습도가 25%차 라면
+    //     }
+    //     else{
+    //     }
+    // 구현하려고 하였으나 토양습도센서의 경우, 값이 튀는 경우가 없어 그냥 뺐다.
+}
 
 void *t_temperature()
 {
-    float temperature;
+    float prev_temperature;
+    float temperature = detect_noise(prev_temperature); // 튀는 값 잡고, 전역변수에 온도값 반영.
+
     int event;
     while (1)
     {
-        temperature = get_temperature();
         event = 0;
 
         if (temperature <= 16.0)
         {
             strcpy(status_temperature, "Cold!");
             printf("------- 온도 측정결과 -------\n\n     [!] 온도 : 너무 춥습니다.\n");
+            tts_talk("여기는 너무 추워요. 따뜻한 곳으로 옮겨주세요.");
             event = 1;
         }
 
@@ -60,6 +116,7 @@ void *t_temperature()
         {
             strcpy(status_temperature, "Hot!");
             printf("-------- 온도 측정결과 ---------\n\n     [!] 온도 : 너무 덥습니다.\n");
+            tts_talk("여기는 너무 더워요. 시원한 곳으로 옮겨주세요.");
             event = 1;
         }
 
@@ -74,6 +131,7 @@ void *t_temperature()
         }
 
         printf("--------------------------------\n\n");
+        prev_temperature = temperature;
 
         if (DEBUG_MODE)
             delay(1000);
@@ -95,6 +153,7 @@ void *t_soilmoisture()
         {
             strcpy(status_soilmoisture, "Dry!");
             printf("------ 토양습도 측정결과 -------\n\n [!] 토양습도 : 너무 건조합니다.\n");
+            tts_talk("흙이 너무 건조해요. 저에게 물을 주세요.");
         }
 
         else
@@ -131,6 +190,7 @@ void *t_brightness()
             strcpy(status_brightness, "Dark!");
             printf("----- 조도(밝기) 측정결과 ------\n\n");
             printf("[!] 밝기: 너무 어둡습니다.\n");
+            tts_talk("여기는 너무 어두워요. 제가 광합성 할 수 있도록, 밝은 곳으로 옮겨주세요.");
             printf("      현재 밝기: 어두움\n\n");
         }
 
