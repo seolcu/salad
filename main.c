@@ -17,7 +17,7 @@
 #include "utility/delay.h"
 #include "communication/tts.h"
 
-// 디버그 모드: 테스트를 위해 딜레이를 최소화함.
+// 디버그 모드: 테스트를 위해 딜레이를 최소화하고 센서가 더 민감해짐.
 #define DEBUG_MODE 1
 
 char status_temperature[16] = ""; // 현재 식물 상태 저장 배열 전역변수
@@ -100,12 +100,21 @@ void *t_temperature()
     static float prev_temperature = 0.0;
     float temperature = detect_noise(prev_temperature); // 튀는 값 잡고, 전역변수에 온도값 반영.
 
+    float lower_threshold = 16.0;
+    float upper_threshold = 30.0;
+
+    if (DEBUG_MODE)
+    {
+        lower_threshold = 20.0;
+        upper_threshold = 25.0;
+    }
+
     int event;
     while (1)
     {
         event = 0;
 
-        if (temperature <= 16.0)
+        if (temperature <= lower_threshold)
         {
             strcpy(status_temperature, "Cold!");
             printf("------- 온도 측정결과 -------\n\n     [!] 온도 : 너무 춥습니다.\n");
@@ -113,7 +122,7 @@ void *t_temperature()
             event = 1;
         }
 
-        else if (temperature >= 30.0)
+        else if (temperature >= upper_threshold)
         {
             strcpy(status_temperature, "Hot!");
             printf("-------- 온도 측정결과 ---------\n\n     [!] 온도 : 너무 덥습니다.\n");
@@ -135,7 +144,7 @@ void *t_temperature()
         prev_temperature = temperature;
 
         if (DEBUG_MODE)
-            delay_second(5);
+            delay_second(3);
         else
             delay_hour(1);
     }
@@ -144,13 +153,16 @@ void *t_temperature()
 void *t_soilmoisture()
 {
     float soilmoisture;
+    float dry_threshold = 20.0;
+    if (DEBUG_MODE)
+    {
+        dry_threshold = 30.0;
+    }
     while (1)
     {
         soilmoisture = get_soilmoisture();
 
-        const float DRY_THRESHOLD = 20.0;
-
-        if (soilmoisture <= DRY_THRESHOLD)
+        if (soilmoisture <= dry_threshold)
         {
             strcpy(status_soilmoisture, "Dry!");
             printf("------ 토양습도 측정결과 -------\n\n [!] 토양습도 : 너무 건조합니다.\n");
@@ -167,7 +179,7 @@ void *t_soilmoisture()
         printf("--------------------------------\n\n");
 
         if (DEBUG_MODE)
-            delay_second(5);
+            delay_second(3);
         else
             delay_hour(12); // 12시간마다 토양습도 측정, 테스트를 위해 시간을 짧게 만들어 놓음.
     }
@@ -198,7 +210,7 @@ void *t_brightness()
         printf("--------------------------------\n\n");
 
         if (DEBUG_MODE)
-            delay_second(5);
+            delay_second(3);
         else
             delay_hour(1); // 1시간마다 밝기 측정, 테스트를 위해 시간을 짧게 만들어 놓음.
     }
