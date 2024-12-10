@@ -71,7 +71,7 @@ float get_temperature()
           {
                temperature = dht_val[2] + dht_val[3] * 0.1; // 측정한 온도 데이터 dht_val[3], dht_val[4]를 계산하여 float형의 온도값 데이터를 계산한다.
                // 온도값을 파일로 저장
-               write_to_file_float("/tmp/temperature", ".1f", temperature);
+               write_to_file_float("/tmp/temperature", "%.1f", temperature);
                return temperature;
           }
 

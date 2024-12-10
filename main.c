@@ -16,6 +16,7 @@
 #include "utility/send_localhost_text.h"
 #include "utility/delay.h"
 #include "communication/tts.h"
+#include "utility/write_to_file.h"
 
 // 테스트 설정 구조체
 typedef struct
@@ -271,16 +272,6 @@ void *t_temperature()
 
     while (1)
     {
-        if (!config.fast_delay && !need_update)
-        {
-            delay_hour(1); // 1시간 대기
-        }
-        else
-        {
-            need_update = 0;          // 업데이트 플래그 초기화
-            delay(config.fast_delay); // 짧은 대기
-        }
-
         time(&now);
         local_time = localtime(&now);
         int is_daytime = (local_time->tm_hour >= 7 && local_time->tm_hour < 19);
@@ -296,7 +287,7 @@ void *t_temperature()
             log_sensor("온도", LOG_WARNING, temperature, "°C",
                        "너무 춥습니다. 따뜻한 곳으로 옮겨주세요.",
                        temp_lower, temp_upper);
-            tts_talk("여기는 너무 추워요. 따뜻한 곳으로 옮겨주세요.");
+            tts_talk("여기는 너무 추워서 슬퍼요. 따뜻한 곳으로 옮겨주세요.");
         }
         else if (temperature >= temp_upper)
         {
@@ -314,6 +305,16 @@ void *t_temperature()
         }
 
         prev_temperature = temperature;
+
+        if (!config.fast_delay && !need_update)
+        {
+            delay_hour(1); // 1시간 대기
+        }
+        else
+        {
+            need_update = 0;          // 업데이트 플래그 초기화
+            delay(config.fast_delay); // 짧은 대기
+        }
     }
 }
 
@@ -323,16 +324,6 @@ void *t_soilmoisture()
 
     while (1)
     {
-        if (!config.fast_delay && !need_update)
-        {
-            delay_hour(12); // 12시간 대기
-        }
-        else
-        {
-            need_update = 0;          // 업데이트 플래그 초기화
-            delay(config.fast_delay); // 짧은 대기
-        }
-
         soilmoisture = get_soilmoisture();
 
         if (soilmoisture <= current_thresholds->soil_dry)
@@ -349,6 +340,16 @@ void *t_soilmoisture()
             log_sensor("토양습도", LOG_INFO, soilmoisture, "%", NULL,
                        current_thresholds->soil_dry, 100.0);
         }
+
+        if (!config.fast_delay && !need_update)
+        {
+            delay_hour(12); // 12시간 대기
+        }
+        else
+        {
+            need_update = 0;          // 업데이트 플래그 초기화
+            delay(config.fast_delay); // 짧은 대기
+        }
     }
 }
 
@@ -360,16 +361,6 @@ void *t_brightness()
 
     while (1)
     {
-        if (!config.fast_delay && !need_update)
-        {
-            delay_hour(1); // 1시간 대기
-        }
-        else
-        {
-            need_update = 0;          // 업데이트 플래그 초기화
-            delay(config.fast_delay); // 짧은 대기
-        }
-
         time(&now);
         local_time = localtime(&now);
 
@@ -397,7 +388,18 @@ void *t_brightness()
         else
         {
             is_bright = 1;
+            write_to_file_string("/tmp/brightness", "Off");
             strcpy(status_brightness, "");
+        }
+
+        if (!config.fast_delay && !need_update)
+        {
+            delay_hour(1); // 1시간 대기
+        }
+        else
+        {
+            need_update = 0;          // 업데이트 플래그 초기화
+            delay(config.fast_delay); // 짧은 대기
         }
     }
 }

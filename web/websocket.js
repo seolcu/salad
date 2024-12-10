@@ -1,36 +1,61 @@
 import { WebSocketServer } from 'ws';
 import { readFileSync } from 'fs';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
 
-const PORT = 50003;
+// ES 모듈에서 __dirname 사용하기 위한 설정
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
-const wss = new WebSocketServer({ port: PORT });
+// WebSocket 서버 생성 (포트 50003)
+const wss = new WebSocketServer({ port: 50003 });
 
-wss.on('connection', function connection(ws) {
-	console.log('New client connected');
+// 센서 데이터를 읽어오는 함수
+function readSensorData() {
+	try {
+		const temperature = readFileSync('/tmp/temperature', 'utf8').trim();
+		const soilmoisture = readFileSync('/tmp/soilmoisture', 'utf8').trim();
+		const brightness = readFileSync('/tmp/brightness', 'utf8').trim();
 
-	// 센서 데이터를 주기적으로 읽어서 전송
-	const interval = setInterval(() => {
-		try {
-			const temperature = readFileSync('/tmp/temperature', 'utf8');
-			const brightness = readFileSync('/tmp/brightness', 'utf8');
-			const moisture = readFileSync('/tmp/moisture', 'utf8');
+		return {
+			temperature: parseFloat(temperature),
+			soilmoisture: parseFloat(soilmoisture),
+			brightness: brightness
+		};
+	} catch (error) {
+		console.error('Error reading sensor data:', error);
+		return null;
+	}
+}
 
-			ws.send(
-				JSON.stringify({
-					temperature: parseFloat(temperature),
-					brightness: parseInt(brightness),
-					moisture: parseFloat(moisture)
-				})
-			);
-		} catch (err) {
-			console.error('Error reading sensor data:', err);
-		}
-	}, 500); // 2초마다 데이터 전송
+// 주기적으로 센서 데이터를 전송
+function broadcastSensorData() {
+	const data = readSensorData();
+	if (data) {
+		wss.clients.forEach((client) => {
+			if (client.readyState === WebSocket.OPEN) {
+				client.send(JSON.stringify(data));
+			}
+		});
+	}
+}
+
+// 클라이언트 연결 시 처리
+wss.on('connection', (ws) => {
+	console.log('Client connected');
+
+	// 초기 데이터 전송
+	const data = readSensorData();
+	if (data) {
+		ws.send(JSON.stringify(data));
+	}
 
 	ws.on('close', () => {
-		clearInterval(interval);
 		console.log('Client disconnected');
 	});
 });
 
-console.log('WebSocket server running on port', PORT);
+// 1초마다 센서 데이터 브로드캐스트
+setInterval(broadcastSensorData, 1000);
+
+console.log('WebSocket server running on port 50003');

@@ -29,6 +29,6 @@ float get_soilmoisture()
     int data = ((buffer[1] & 3) << 8) + buffer[2];
     // 습도를 의미하는 값이므로, moisture 값은 data의 값이 작아질수록 커진다.
     float moisture = 100.0 - (float)data / 1023.0 * 100.0;
-    write_to_file_float("/tmp/moisture", ".1f", moisture);
+    write_to_file_float("/tmp/soilmoisture", "%.1f", moisture);
     return moisture;
 }
