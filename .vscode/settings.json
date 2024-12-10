@@ -3,6 +3,19 @@
     "wiringpi.h": "c",
     "dht.h": "c",
     "soilmoisture.h": "c",
-    "send_localhost_text.h": "c"
+    "send_localhost_text.h": "c",
+    "dht11.h": "c",
+    "write_to_file.h": "c",
+    "*.tcc": "c",
+    "optional": "c",
+    "ratio": "c",
+    "system_error": "c",
+    "array": "c",
+    "functional": "c",
+    "regex": "c",
+    "tuple": "c",
+    "type_traits": "c",
+    "utility": "c",
+    "variant": "c"
   }
 }

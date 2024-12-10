@@ -15,8 +15,8 @@
 #include "sensors/motionsensor.h"
 #include "utility/send_localhost_text.h"
 #include "utility/delay.h"
-#include "communication/tts.h"
 #include "utility/write_to_file.h"
+#include "communication/tts.h"
 
 // 테스트 설정 구조체
 typedef struct
@@ -280,6 +280,9 @@ void *t_temperature()
         float temp_upper = is_daytime ? current_thresholds->temp_day_upper : current_thresholds->temp_night_upper;
 
         temperature = detect_noise(prev_temperature);
+        char temperature_string[16];
+        snprintf(temperature_string, sizeof(temperature_string), "%.1f", temperature);
+        write_to_file("/tmp/temperature", temperature_string);
 
         if (temperature <= temp_lower)
         {
@@ -325,6 +328,9 @@ void *t_soilmoisture()
     while (1)
     {
         soilmoisture = get_soilmoisture();
+        char soilmoisture_string[16];
+        snprintf(soilmoisture_string, sizeof(soilmoisture_string), "%.1f", soilmoisture);
+        write_to_file("/tmp/soilmoisture", soilmoisture_string);
 
         if (soilmoisture <= current_thresholds->soil_dry)
         {
@@ -355,7 +361,7 @@ void *t_soilmoisture()
 
 void *t_brightness()
 {
-    int is_bright;
+    int brightness;
     time_t now;
     struct tm *local_time;
 
@@ -369,10 +375,12 @@ void *t_brightness()
 
         if (should_check)
         {
-            is_bright = get_brightness();
-            if (!is_bright)
+            brightness = get_brightness();
+
+            if (!brightness)
             {
                 strcpy(status_brightness, "Dark!");
+                write_to_file("/tmp/brightness", "dark");
                 log_sensor("조도(밝기)", LOG_WARNING, 0, "",
                            "햇빛이 부족합니다. 더 밝은 곳으로 옮겨주세요.",
                            0, 1);
@@ -381,14 +389,15 @@ void *t_brightness()
             else
             {
                 strcpy(status_brightness, "");
-                log_sensor("조도(밝기)", LOG_INFO, is_bright, "",
+                write_to_file("/tmp/brightness", "bright");
+                log_sensor("조도(밝기)", LOG_INFO, brightness, "",
                            NULL, 0, 1);
             }
         }
         else
         {
-            is_bright = 1;
-            write_to_file_string("/tmp/brightness", "Off");
+            brightness = 1;
+            write_to_file("/tmp/brightness", "night_mode");
             strcpy(status_brightness, "");
         }
 
@@ -430,6 +439,7 @@ void *t_LCD_Dot()
         strcat(status, status_temperature);
         strcat(status, status_soilmoisture);
         strcat(status, status_brightness);
+        write_to_file("/tmp/status", status);
 
         if (strcmp(status, "") != 0) // 만약 식물의 온도, 토양습도, 조도 중 하나라도 문제가 있을 경우 status 배열 안에
         // 어떠한 값이 들어있을 것이므로 0이 아닐 것이다. 따라서, 이런 경우 bad condition으로
