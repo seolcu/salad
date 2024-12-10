@@ -9,6 +9,18 @@
       href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"
     />
     <style>
+      :root {
+        --primary-bg: #f8fafc;
+        --card-bg: rgba(255, 255, 255, 0.95);
+        --text-primary: #1e293b;
+        --text-secondary: #64748b;
+        --accent-primary: #0ea5e9;
+        --warning: #ef4444;
+        --card-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1),
+          0 2px 4px -2px rgb(0 0 0 / 0.1);
+        --transition-standard: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
       * {
         margin: 0;
         padding: 0;
@@ -18,137 +30,199 @@
       body {
         font-family: "Pretendard", -apple-system, BlinkMacSystemFont, system-ui,
           Roboto, sans-serif;
-        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
         min-height: 100vh;
         padding: 20px;
+        color: var(--text-primary);
+        line-height: 1.5;
       }
 
       .container {
-        max-width: 800px;
+        max-width: 1200px;
         margin: 0 auto;
+        padding: 20px;
       }
 
       h1 {
-        color: #2c3e50;
+        color: var(--text-primary);
         text-align: center;
         margin: 40px 0;
         font-size: 2.5em;
-        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        font-weight: 700;
+        letter-spacing: -0.025em;
       }
 
       .grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-        gap: 20px;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 24px;
         padding: 20px;
       }
 
       .card {
-        background: rgba(255, 255, 255, 0.9);
-        padding: 25px;
-        border-radius: 15px;
+        background: var(--card-bg);
+        padding: 24px;
+        border-radius: 16px;
+        box-shadow: var(--card-shadow);
+        transition: var(--transition-standard);
+        border: 1px solid rgba(255, 255, 255, 0.5);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .card:hover {
+        transform: translateY(-2px);
         box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-        transition: all 0.3s ease;
-        backdrop-filter: blur(5px);
-        border: 2px solid transparent;
-      }
-
-      .card.warning {
-        border-color: #e74c3c;
-        animation: pulse 2s infinite;
-      }
-
-      @keyframes pulse {
-        0% {
-          transform: scale(1);
-        }
-        50% {
-          transform: scale(1.02);
-        }
-        100% {
-          transform: scale(1);
-        }
       }
 
       .card h2 {
-        color: #34495e;
-        margin-bottom: 15px;
-        font-size: 1.5em;
+        color: var(--text-primary);
+        font-size: 1.25em;
+        font-weight: 600;
+        margin-bottom: 20px;
         display: flex;
         align-items: center;
-        gap: 10px;
+        gap: 8px;
       }
 
       .value {
-        font-size: 28px;
-        font-weight: bold;
-        color: #2c3e50;
-        margin: 15px 0;
+        font-size: 2.5em;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin: 24px 0;
         text-align: center;
+        transition: var(--transition-standard);
       }
 
       .detail {
-        font-size: 14px;
-        color: #666;
-        margin-top: 8px;
+        font-size: 0.925em;
+        color: var(--text-secondary);
+        margin-top: 16px;
         text-align: center;
-      }
-
-      .warning .value {
-        color: #e74c3c;
-      }
-
-      .warning-text {
-        color: #e74c3c;
-        font-weight: bold;
-        font-size: 16px;
-        text-align: center;
-        margin-top: 10px;
-        display: none;
-      }
-
-      .warning .warning-text {
-        display: block;
+        line-height: 1.6;
       }
 
       .threshold {
         display: inline-block;
-        margin: 0 5px;
-        padding: 2px 6px;
-        border-radius: 4px;
-        background: rgba(0, 0, 0, 0.1);
+        padding: 4px 8px;
+        border-radius: 6px;
+        background: rgba(0, 0, 0, 0.05);
+        font-weight: 500;
       }
 
-      @media (max-width: 600px) {
-        .grid {
-          grid-template-columns: 1fr;
+      .card.warning {
+        animation: subtle-pulse 2s infinite;
+      }
+
+      .card.warning .value {
+        color: var(--warning);
+      }
+
+      .card.warning::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: var(--warning);
+        animation: slide-in 0.3s ease-out;
+      }
+
+      .warning-text {
+        color: var(--warning);
+        font-weight: 500;
+        font-size: 0.925em;
+        text-align: center;
+        margin-top: 16px;
+        opacity: 0;
+        transform: translateY(10px);
+        transition: var(--transition-standard);
+      }
+
+      .card.warning .warning-text {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      @keyframes subtle-pulse {
+        0% {
+          transform: scale(1);
         }
-        h1 {
-          font-size: 2em;
+        50% {
+          transform: scale(1.005);
+        }
+        100% {
+          transform: scale(1);
+        }
+      }
+
+      @keyframes slide-in {
+        from {
+          transform: translateX(-100%);
+        }
+        to {
+          transform: translateX(0);
         }
       }
 
       .loading {
-        animation: pulse 2s infinite;
+        opacity: 0.7;
       }
 
       .updated {
-        animation: highlight 1s;
+        animation: fade-update 1.5s ease-out;
       }
 
-      @keyframes highlight {
+      @keyframes fade-update {
         0% {
-          background-color: rgba(46, 204, 113, 0.2);
+          background-color: rgba(14, 165, 233, 0.15);
         }
         100% {
-          background-color: rgba(255, 255, 255, 0.9);
+          background-color: transparent;
+        }
+      }
+
+      @media (max-width: 768px) {
+        .container {
+          padding: 12px;
+        }
+
+        .grid {
+          gap: 16px;
+          padding: 12px;
+        }
+
+        .card {
+          padding: 20px;
+        }
+
+        h1 {
+          font-size: 2em;
+          margin: 24px 0;
+        }
+
+        .value {
+          font-size: 2em;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .card,
+        .warning-text,
+        .value {
+          transition: none;
+        }
+
+        .card.warning {
+          animation: none;
         }
       }
     </style>
   </head>
   <body>
     <div class="container">
-      <h1 class="animate__animated animate__fadeIn">🥗 샐러드</h1>
+      <h1>🥗 샐러드</h1>
       <div class="grid">
         <div
           id="temperature-card"
@@ -157,73 +231,92 @@
           <h2>🌡️ 온도</h2>
           <div id="temperature" class="value loading">측정중...</div>
           <div id="temperature-detail" class="detail"></div>
-          <div class="warning-text">온도가 적정 범위를 벗어났어요</div>
+          <div class="warning-text">적정 온도 범위를 벗어났어요</div>
         </div>
         <div
           id="brightness-card"
           class="card animate__animated animate__fadeInUp"
-          style="animation-delay: 0.1s"
         >
           <h2>☀️ 밝기</h2>
           <div id="brightness" class="value loading">측정중...</div>
           <div id="brightness-detail" class="detail"></div>
-          <div class="warning-text">햇빛이 부족해요</div>
+          <div class="warning-text">더 밝은 곳으로 옮겨주세요</div>
         </div>
-        <div
-          id="soil-card"
-          class="card animate__animated animate__fadeInUp"
-          style="animation-delay: 0.2s"
-        >
+        <div id="soil-card" class="card animate__animated animate__fadeInUp">
           <h2>💧 토양 습도</h2>
           <div id="soil_moisture" class="value loading">측정중...</div>
           <div id="soil-detail" class="detail"></div>
-          <div class="warning-text">물을 주어야 할 때예요</div>
+          <div class="warning-text">물을 주실 시간이에요</div>
         </div>
       </div>
     </div>
 
     <script>
+      const lastValidValues = {};
+      let numberAnimationFrames = {};
+
       function translateBrightness(value) {
-        const translations = {
-          bright: "밝음",
-          dark: "어두움",
-          night_mode: "야간",
-        };
-        return translations[value] || value;
+        return (
+          {
+            bright: "밝음",
+            dark: "어두움",
+            night_mode: "야간",
+          }[value] || value
+        );
+      }
+
+      function formatNumber(value, duration = 1000) {
+        if (typeof value !== "number") return value;
+
+        const start = lastValidValues[value] || value;
+        const startTime = performance.now();
+
+        if (numberAnimationFrames[value]) {
+          cancelAnimationFrame(numberAnimationFrames[value]);
+        }
+
+        function animate(currentTime) {
+          const elapsed = currentTime - startTime;
+          const progress = Math.min(elapsed / duration, 1);
+
+          // 이징 함수 적용
+          const easeOutQuart = 1 - Math.pow(1 - progress, 4);
+          const current = start + (value - start) * easeOutQuart;
+
+          lastValidValues[value] = current;
+
+          if (progress < 1) {
+            numberAnimationFrames[value] = requestAnimationFrame(animate);
+          }
+
+          return current.toFixed(1);
+        }
+
+        return animate(performance.now());
       }
 
       function updateThresholdDetails(data) {
-        // 온도 상세 정보
-        let tempThresholds = "";
-        const temp = data.raw_values.temperature;
-        if (data.is_daytime) {
-          tempThresholds = `적정 온도: <span class="threshold">${data.thresholds.temp_day_lower}°C</span> ~ <span class="threshold">${data.thresholds.temp_day_upper}°C</span>`;
-        } else {
-          tempThresholds = `적정 온도: <span class="threshold">${data.thresholds.temp_night_lower}°C</span> ~ <span class="threshold">${data.thresholds.temp_night_upper}°C</span>`;
-        }
-        document.getElementById("temperature-detail").innerHTML =
-          tempThresholds;
-
-        // 밝기 상세 정보
         const timeInfo = data.is_daytime ? "주간" : "야간";
+        const tempRange = data.is_daytime
+          ? `${data.thresholds.temp_day_lower} ~ ${data.thresholds.temp_day_upper}°C`
+          : `${data.thresholds.temp_night_lower} ~ ${data.thresholds.temp_night_upper}°C`;
+
+        document.getElementById(
+          "temperature-detail"
+        ).innerHTML = `${timeInfo} 적정 온도: <span class="threshold">${tempRange}</span>`;
+
         document.getElementById(
           "brightness-detail"
         ).innerHTML = `현재 시간대: <span class="threshold">${timeInfo}</span>`;
 
-        // 토양 습도 상세 정보
         document.getElementById(
           "soil-detail"
-        ).innerHTML = `최소 습도: <span class="threshold">${data.thresholds.soil_dry}%</span>`;
+        ).innerHTML = `최소 필요 습도: <span class="threshold">${data.thresholds.soil_dry}%</span>`;
       }
 
       function updateValue(elementId, newValue, formatFunction = null) {
         const element = document.getElementById(elementId);
-
-        if (!newValue && newValue !== 0) {
-          newValue = lastValidValues[elementId] || "측정중...";
-        } else {
-          lastValidValues[elementId] = newValue;
-        }
+        if (!element) return;
 
         const formattedValue = formatFunction
           ? formatFunction(newValue)
@@ -234,14 +327,11 @@
           element.classList.remove("loading");
           element.textContent = formattedValue;
 
-          setTimeout(() => {
-            element.classList.remove("updated");
-          }, 1000);
+          setTimeout(() => element.classList.remove("updated"), 1500);
         }
       }
 
       function checkSensorStatus(data) {
-        // 온도 상태 체크
         const temp = parseFloat(data.temperature);
         const tempCard = document.getElementById("temperature-card");
         const tempLower = data.is_daytime
@@ -256,14 +346,12 @@
           temp < tempLower || temp > tempUpper
         );
 
-        // 밝기 상태 체크
         const brightnessCard = document.getElementById("brightness-card");
         brightnessCard.classList.toggle(
           "warning",
           data.is_daytime && data.brightness === "dark"
         );
 
-        // 토양 습도 상태 체크
         const soilMoisture = parseFloat(data.soil_moisture);
         const soilCard = document.getElementById("soil-card");
         soilCard.classList.toggle(
@@ -272,31 +360,34 @@
         );
       }
 
-      const lastValidValues = {
-        temperature: null,
-        brightness: null,
-        soil_moisture: null,
-      };
+      async function updateData() {
+        try {
+          const response = await fetch("/api/data");
+          const data = await response.json();
 
-      function updateData() {
-        fetch("/api/data")
-          .then((response) => response.json())
-          .then((data) => {
-            updateValue("temperature", data.temperature);
-            updateValue("brightness", data.brightness, translateBrightness);
-            updateValue("soil_moisture", data.soil_moisture);
-            updateThresholdDetails(data);
-            checkSensorStatus(data);
-          })
-          .catch((error) => {
-            console.error("데이터 업데이트 실패:", error);
-          });
+          updateValue("temperature", data.temperature);
+          updateValue("brightness", data.brightness, translateBrightness);
+          updateValue("soil_moisture", data.soil_moisture);
+          updateThresholdDetails(data);
+          checkSensorStatus(data);
+        } catch (error) {
+          console.error("데이터 업데이트 실패:", error);
+        }
       }
 
-      // 초기 로드
       updateData();
-      // 1초마다 업데이트
       setInterval(updateData, 1000);
+
+      // 사용자가 화면을 보고있지 않을 때 업데이트 주기를 늘림
+      document.addEventListener("visibilitychange", () => {
+        if (document.hidden) {
+          clearInterval(updateInterval);
+          updateInterval = setInterval(updateData, 5000);
+        } else {
+          clearInterval(updateInterval);
+          updateInterval = setInterval(updateData, 1000);
+        }
+      });
     </script>
   </body>
 </html>
