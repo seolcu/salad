@@ -1,148 +1,99 @@
+# 이 코드는 부팅 시 자동으로 실행됩니다.
+# 자동으로 실행되지 않는다면 `crontab -e`로 자동실행 스크립트를 점검하세요.
+
 from RPLCD.i2c import CharLCD
-from subprocess import check_output, CalledProcessError
+from subprocess import *
 import socket
 import threading
 import time
-from typing import Optional
-import logging
-from dataclasses import dataclass
 
-# 로깅 설정
-logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
-)
+PORT = 50000
+COLUMN_SIZE = 16
+IP_PLACEHOLDER = "Connecting..."
 
 
-@dataclass
-class LCDConfig:
-    """LCD 설정을 위한 데이터 클래스"""
-
-    port: int = 50000
-    column_size: int = 16
-    ip_placeholder: str = "Connecting..."
-    i2c_address: int = 0x27
-    lcd_port: int = 1
-    lcd_rows: int = 2
-    lcd_dotsize: int = 8
+# LCD 초기화
+def init_lcd():
+    __lcd__ = CharLCD(
+        i2c_expander="PCF8574", address=0x27, port=1, cols=16, rows=2, dotsize=8
+    )
+    __lcd__.cursor_mode = "hide"
+    __lcd__.clear()
+    return __lcd__
 
 
-class LCDController:
-    """LCD 제어 및 서버 관리를 위한 클래스"""
+# WiFi 인터페이스에 할당된 IP 주소를 구하는 명령어. wlan0이 WiFi에 연결되어 있지 않다면 IP_PLACEHOLDER을 반환.
+def get_ip():
+    ip_command = """
+    ip -4 addr show wlan0 | grep -oP '(?<=inet\s)\d+(\.\d+){3}'
+    """
+    try:
+        __ip__ = check_output(ip_command, shell=True).decode("ascii")[:-1]
+    except CalledProcessError:
+        __ip__ = IP_PLACEHOLDER
+    finally:
+        return __ip__
 
-    def __init__(self, config: LCDConfig = LCDConfig()):
-        self.config = config
-        self.lcd = self._init_lcd()
-        self.current_message: str = ""
-        self.running: bool = False
-        self._lock = threading.Lock()
 
-    def _init_lcd(self) -> CharLCD:
-        """LCD 초기화"""
-        try:
-            lcd = CharLCD(
-                i2c_expander="PCF8574",
-                address=self.config.i2c_address,
-                port=self.config.lcd_port,
-                cols=self.config.column_size,
-                rows=self.config.lcd_rows,
-                dotsize=self.config.lcd_dotsize,
+def handle_client(client_socket, addr):
+    print(f"클라이언트 연결됨: {addr}")
+
+    try:
+        global data
+        data = client_socket.recv(COLUMN_SIZE).decode()
+        print(f"클라이언트 {addr}로부터 수신: {data}")
+        print(f"클라이언트 {addr} 연결 종료")
+
+    except ConnectionResetError:
+        print(f"클라이언트 {addr} 연결이 강제로 종료됨")
+
+    finally:
+        client_socket.close()
+
+
+def run_server():
+    server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+
+    # 서버 주소 설정
+    server_address = ("localhost", PORT)
+    server.bind(server_address)
+    server.listen(5)
+
+    print(f"서버가 {server_address}에서 대기 중...")
+
+    try:
+        while True:
+            # 클라이언트 연결 수락
+            client_socket, addr = server.accept()
+            # 각 클라이언트를 별도 스레드로 처리
+            client_thread = threading.Thread(
+                target=handle_client, args=(client_socket, addr)
             )
-            lcd.cursor_mode = "hide"
-            lcd.clear()
-            return lcd
-        except Exception as e:
-            logging.error(f"LCD 초기화 실패: {e}")
-            raise
+            client_thread.start()
 
-    def get_ip(self) -> str:
-        """WiFi IP 주소 조회"""
-        cmd = "ip -4 addr show wlan0 | grep -oP '(?<=inet\s)\d+(\.\d+){3}'"
-        try:
-            return check_output(cmd, shell=True).decode("utf-8").strip()
-        except CalledProcessError:
-            logging.warning("IP 주소 조회 실패")
-            return self.config.ip_placeholder
-        except Exception as e:
-            logging.error(f"예상치 못한 에러 발생: {e}")
-            return self.config.ip_placeholder
+    except KeyboardInterrupt:
+        print("\n서버를 종료합니다.")
 
-    def update_message(self, message: str) -> None:
-        """스레드 안전한 메시지 업데이트"""
-        with self._lock:
-            self.current_message = message[: self.config.column_size]
+    finally:
+        server.close()
 
-    def _handle_client(self, client_socket: socket.socket, addr: tuple) -> None:
-        """클라이언트 연결 처리"""
-        logging.info(f"클라이언트 연결됨: {addr}")
-        try:
-            data = client_socket.recv(self.config.column_size).decode("utf-8")
-            if data:
-                self.update_message(data)
-                logging.info(f"수신된 메시지: {data}")
-        except ConnectionResetError:
-            logging.warning(f"클라이언트 {addr} 연결 강제 종료")
-        except Exception as e:
-            logging.error(f"클라이언트 처리 중 에러 발생: {e}")
-        finally:
-            client_socket.close()
 
-    def _refresh_display(self) -> None:
-        """LCD 디스플레이 갱신"""
-        while self.running:
-            try:
-                with self._lock:
-                    self.lcd.clear()
-                    self.lcd.write_string(self.get_ip())
-                    self.lcd.cursor_pos = (1, 0)
-                    self.lcd.write_string(self.current_message)
-                time.sleep(1)
-            except Exception as e:
-                logging.error(f"디스플레이 갱신 중 에러 발생: {e}")
-                time.sleep(5)  # 에러 발생 시 잠시 대기
-
-    def start(self) -> None:
-        """서버 및 디스플레이 갱신 시작"""
-        self.running = True
-
-        # 디스플레이 갱신 스레드 시작
-        display_thread = threading.Thread(target=self._refresh_display, daemon=True)
-        display_thread.start()
-
-        # 서버 시작
-        server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-
-        try:
-            server.bind(("localhost", self.config.port))
-            server.listen(5)
-            logging.info(f"서버가 포트 {self.config.port}에서 시작됨")
-
-            while self.running:
-                try:
-                    client_socket, addr = server.accept()
-                    client_thread = threading.Thread(
-                        target=self._handle_client,
-                        args=(client_socket, addr),
-                        daemon=True,
-                    )
-                    client_thread.start()
-                except Exception as e:
-                    logging.error(f"클라이언트 연결 수락 중 에러 발생: {e}")
-
-        except Exception as e:
-            logging.error(f"서버 시작 중 에러 발생: {e}")
-        finally:
-            self.running = False
-            server.close()
-            self.lcd.clear()
-            logging.info("서버가 종료됨")
+def refresh_lcd():
+    while True:
+        global lcd, data
+        lcd.clear()
+        lcd.write_string(get_ip())
+        lcd.cursor_pos = (1, 0)
+        lcd.write_string(data[:COLUMN_SIZE])
+        time.sleep(1)
 
 
 if __name__ == "__main__":
-    try:
-        controller = LCDController()
-        controller.start()
-    except KeyboardInterrupt:
-        logging.info("프로그램이 사용자에 의해 종료됨")
-    except Exception as e:
-        logging.error(f"프로그램 실행 중 치명적인 에러 발생: {e}")
+    global lcd, data
+    lcd = init_lcd()
+    # IP 주소 갱신 스레드 시작. Daemon 스레드로 설정하여 메인 스레드 종료 시 함께 종료.
+    data = ""
+    lcd_thread = threading.Thread(target=refresh_lcd, daemon=True)
+    lcd_thread.start()
+    run_server()
