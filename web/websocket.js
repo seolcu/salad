@@ -12,20 +12,20 @@ wss.on('connection', function connection(ws) {
 	const interval = setInterval(() => {
 		try {
 			const temperature = readFileSync('/tmp/temperature', 'utf8');
-			const light = readFileSync('/tmp/light', 'utf8');
+			const brightness = readFileSync('/tmp/brightness', 'utf8');
 			const moisture = readFileSync('/tmp/moisture', 'utf8');
 
 			ws.send(
 				JSON.stringify({
 					temperature: parseFloat(temperature),
-					light: parseInt(light),
+					brightness: parseInt(brightness),
 					moisture: parseFloat(moisture)
 				})
 			);
 		} catch (err) {
 			console.error('Error reading sensor data:', err);
 		}
-	}, 2000); // 2초마다 데이터 전송
+	}, 500); // 2초마다 데이터 전송
 
 	ws.on('close', () => {
 		clearInterval(interval);
