@@ -27,9 +27,10 @@ source ./.venv/bin/activate
 
 ## 소켓 포트
 
-- LCD: 50000
-- TTS (Text-to-Speech): 50001
-- 대화 프로그램 (MOTION_DETECTED): 50002
+- LCD: `50000`
+- TTS (Text-to-Speech): `50001`
+- 대화 프로그램 (MOTION_DETECTED): `50002`
+- 웹소켓 프로그램: `50003`
 
 ## 핀
 
