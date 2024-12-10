@@ -121,14 +121,14 @@ class InteractivePlant:
     def get_claude_response(self, user_input):
         """Claude AI로부터 응답을 생성합니다."""
         try:
-            system_prompt = (
+            base_prompt = (
                 "당신은 식물입니다. 사람들과 짧고 친근하게 대화하세요. "
                 "2-3문장 정도의 간단한 답변을 하되, 식물의 관점에서 자연스럽게 이야기하세요. "
                 "행동이나 동작을 묘사하지 말고, 순수하게 대화 내용만 전달하세요."
                 "이미 첫 인사를 한 상황이므로, 새롭게 인사하지 마세요"
-                "당신은 지금 플라스틱 화분에 있습니다."
-                "당신은 민들레라는 식물입니다."
             )
+            additional_prompt = os.getenv("ADDITIONAL_PROMPT", "")  # 추가 프롬프트 설정
+            system_prompt = f"{base_prompt}\n{additional_prompt}".strip()
 
             messages = []
             for msg in self.conversation_history[-5:]:
@@ -164,7 +164,7 @@ class InteractivePlant:
                 # 모션 감지 신호를 기다립니다
                 if self.wait_for_motion_signal():
                     # 대화 시작
-                    welcome_message = "안녕하세요! 저는 당신과 이야기 나누고 싶은 식물이에요. 편하게 이야기해주세요."
+                    welcome_message = "안녕하세요! 저는 당신과 이야기 나누고 싶은 식물, 식쪽이에요. 반가워요."
                     print("모션 감지: 인사말 재생")
                     self.send_to_tts_server(welcome_message)
 
