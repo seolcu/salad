@@ -19,6 +19,7 @@ def init_lcd():
     )
     __lcd__.cursor_mode = "hide"
     __lcd__.clear()
+
     return __lcd__
 
 

@@ -24,6 +24,7 @@ typedef struct
     int sensitive_mode;          // 1이면 민감한 임계값 사용
     int always_check_brightness; // 1이면 낮/밤 관계없이 밝기 체크
     int enable_motionsensor;
+    int enable_chat;
     int enable_temperature;
     int enable_soilmoisture;
     int enable_brightness;
@@ -32,21 +33,27 @@ typedef struct
 // 임계값 구조체
 typedef struct
 {
-    float temp_lower;
-    float temp_upper;
+    float temp_day_lower;   // 낮 시간 최저 온도
+    float temp_day_upper;   // 낮 시간 최고 온도
+    float temp_night_lower; // 밤 시간 최저 온도
+    float temp_night_upper; // 밤 시간 최고 온도
     float soil_dry;
 } Thresholds;
 
 // 일반 모드 임계값
 const Thresholds normal_thresholds = {
-    .temp_lower = 16.0,
-    .temp_upper = 30.0,
+    .temp_day_lower = 18.0, // 낮에 이상적인 적정 온도는 18~25도, 최소 온도 : 10도, 최대 온도 : 30도
+    .temp_day_upper = 25.0,
+    .temp_night_lower = 16.0, // 밤에 이상적인 적정 온도는 16~18도, 최소 온도 : 10도, 최대 온도 : 30도
+    .temp_night_upper = 18.0,
     .soil_dry = 20.0};
 
 // 민감 모드 임계값
 const Thresholds sensitive_thresholds = {
-    .temp_lower = 18.0,
-    .temp_upper = 28.0,
+    .temp_day_lower = 22.0,
+    .temp_day_upper = 24.0,
+    .temp_night_lower = 10.0,
+    .temp_night_upper = 18.0,
     .soil_dry = 25.0};
 
 // 옵션 설정
@@ -55,6 +62,7 @@ Config config = {
     .sensitive_mode = 0,
     .always_check_brightness = 0, // 기본적으로는 낮/밤 구분
     .enable_motionsensor = 1,
+    .enable_chat = 1,
     .enable_temperature = 1,
     .enable_soilmoisture = 1,
     .enable_brightness = 1};
@@ -74,6 +82,7 @@ void print_usage()
     printf("  --sensitive       민감 모드 활성화 (더 엄격한 임계값 적용)\n");
     printf("  --24h-bright     밝기를 24시간 체크 (기본: 낮 시간만)\n");
     printf("  --no-motion       모션 센서 비활성화\n");
+    printf("  --no-chat         대화 기능 비활성화\n");
     printf("  --no-temp         온도 센서 비활성화\n");
     printf("  --no-soil         토양습도 센서 비활성화\n");
     printf("  --no-bright       밝기 센서 비활성화\n");
@@ -88,6 +97,7 @@ void parse_arguments(int argc, char *argv[])
         {"sensitive", no_argument, 0, 's'},
         {"24h-bright", no_argument, 0, 'a'},
         {"no-motion", no_argument, 0, 'm'},
+        {"no-chat", no_argument, 0, 'c'},
         {"no-temp", no_argument, 0, 't'},
         {"no-soil", no_argument, 0, 'o'},
         {"no-bright", no_argument, 0, 'b'},
@@ -113,6 +123,9 @@ void parse_arguments(int argc, char *argv[])
             break;
         case 'm':
             config.enable_motionsensor = 0;
+            break;
+        case 'c':
+            config.enable_chat = 0;
             break;
         case 't':
             config.enable_temperature = 0;
@@ -246,48 +259,61 @@ float detect_noise(float value) // 센서값이 튀는 것을 감지하여 적�
     // 구현하려고 하였으나 토양습도센서의 경우, 값이 튀는 경우가 없어 그냥 뺐다.
 }
 
+// 센서값 강제 업데이트를 위한 전역 변수
+volatile int need_update = 0; // volatile: 여러 스레드에서 접근하는 변수임을 명시
+
 void *t_temperature()
 {
     static float prev_temperature = 22.5;
     float temperature = 22.5;
+    time_t now;
+    struct tm *local_time;
 
     while (1)
     {
-        temperature = detect_noise(prev_temperature); // 튀는 값 잡고, 전역변수에 온도값 반영.
+        if (!config.fast_delay && !need_update)
+        {
+            delay_hour(1); // 1시간 대기
+        }
+        else
+        {
+            need_update = 0;          // 업데이트 플래그 초기화
+            delay(config.fast_delay); // 짧은 대기
+        }
 
-        if (temperature <= current_thresholds->temp_lower)
+        time(&now);
+        local_time = localtime(&now);
+        int is_daytime = (local_time->tm_hour >= 7 && local_time->tm_hour < 19);
+
+        float temp_lower = is_daytime ? current_thresholds->temp_day_lower : current_thresholds->temp_night_lower;
+        float temp_upper = is_daytime ? current_thresholds->temp_day_upper : current_thresholds->temp_night_upper;
+
+        temperature = detect_noise(prev_temperature);
+
+        if (temperature <= temp_lower)
         {
             strcpy(status_temperature, "Cold!");
             log_sensor("온도", LOG_WARNING, temperature, "°C",
                        "너무 춥습니다. 따뜻한 곳으로 옮겨주세요.",
-                       current_thresholds->temp_lower,
-                       current_thresholds->temp_upper);
+                       temp_lower, temp_upper);
             tts_talk("여기는 너무 추워요. 따뜻한 곳으로 옮겨주세요.");
         }
-
-        else if (temperature >= current_thresholds->temp_upper)
+        else if (temperature >= temp_upper)
         {
             strcpy(status_temperature, "Hot!");
             log_sensor("온도", LOG_WARNING, temperature, "°C",
                        "너무 덥습니다. 시원한 곳으로 옮겨주세요.",
-                       current_thresholds->temp_lower,
-                       current_thresholds->temp_upper);
+                       temp_lower, temp_upper);
             tts_talk("여기는 너무 더워요. 시원한 곳으로 옮겨주세요.");
         }
         else
         {
             strcpy(status_temperature, "");
             log_sensor("온도", LOG_INFO, temperature, "°C", NULL,
-                       current_thresholds->temp_lower,
-                       current_thresholds->temp_upper);
+                       temp_lower, temp_upper);
         }
 
         prev_temperature = temperature;
-
-        if (config.fast_delay)
-            delay(config.fast_delay);
-        else
-            delay_hour(1);
     }
 }
 
@@ -297,6 +323,16 @@ void *t_soilmoisture()
 
     while (1)
     {
+        if (!config.fast_delay && !need_update)
+        {
+            delay_hour(12); // 12시간 대기
+        }
+        else
+        {
+            need_update = 0;          // 업데이트 플래그 초기화
+            delay(config.fast_delay); // 짧은 대기
+        }
+
         soilmoisture = get_soilmoisture();
 
         if (soilmoisture <= current_thresholds->soil_dry)
@@ -313,11 +349,6 @@ void *t_soilmoisture()
             log_sensor("토양습도", LOG_INFO, soilmoisture, "%", NULL,
                        current_thresholds->soil_dry, 100.0);
         }
-
-        if (config.fast_delay)
-            delay(config.fast_delay);
-        else
-            delay_hour(12); // 12시간마다 토양습도 측정, 테스트를 위해 시간을 짧게 만들어 놓음.
     }
 }
 
@@ -329,33 +360,62 @@ void *t_brightness()
 
     while (1)
     {
-        is_bright = get_brightness();
+        if (!config.fast_delay && !need_update)
+        {
+            delay_hour(1); // 1시간 대기
+        }
+        else
+        {
+            need_update = 0;          // 업데이트 플래그 초기화
+            delay(config.fast_delay); // 짧은 대기
+        }
+
         time(&now);
         local_time = localtime(&now);
 
-        // 항상 체크하거나 낮 시간일 때만 체크
         int should_check = config.always_check_brightness ||
                            (local_time->tm_hour >= 7 && local_time->tm_hour < 19);
 
-        if (!is_bright && should_check)
+        if (should_check)
         {
-            strcpy(status_brightness, "Dark!");
-            log_sensor("조도(밝기)", LOG_WARNING, 0, "",
-                       "햇빛이 부족합니다. 더 밝은 곳으로 옮겨주세요.",
-                       0, 1);
-            tts_talk("여기는 너무 어두워요. 제가 햇빛을 받을 수 있게, 창가로 옮겨주세요.");
+            is_bright = get_brightness();
+            if (!is_bright)
+            {
+                strcpy(status_brightness, "Dark!");
+                log_sensor("조도(밝기)", LOG_WARNING, 0, "",
+                           "햇빛이 부족합니다. 더 밝은 곳으로 옮겨주세요.",
+                           0, 1);
+                tts_talk("여기는 너무 어두워요. 제가 햇빛을 받을 수 있게, 창가로 옮겨주세요.");
+            }
+            else
+            {
+                strcpy(status_brightness, "");
+                log_sensor("조도(밝기)", LOG_INFO, is_bright, "",
+                           NULL, 0, 1);
+            }
         }
         else
         {
+            is_bright = 1;
             strcpy(status_brightness, "");
-            log_sensor("조도(밝기)", LOG_INFO, is_bright, "",
-                       NULL, 0, 1);
         }
+    }
+}
 
-        if (config.fast_delay)
-            delay(config.fast_delay);
-        else
-            delay_hour(1);
+void *t_motion()
+{
+    int motion_detected = 0;
+    while (1)
+    {
+        motion_detected = check_motion();
+        if (motion_detected)
+        {
+            // 모든 센서값 강제 업데이트 요청
+            need_update = 1;
+            if (config.enable_chat)
+                send_localhost_text("MOTION_DETECTED", 50002, 1);
+            delay(1000); // 연속적인 업데이트 방지를 위한 대기
+        }
     }
 }
 
@@ -380,20 +440,6 @@ void *t_LCD_Dot()
         {
             draw_smile();
             set_lcd_text("Well Done!");
-        }
-    }
-}
-
-void *t_motion()
-{
-    int motion_detected = 0;
-    while (1)
-    {
-        motion_detected = check_motion();
-        if (motion_detected)
-        {
-            // 대화가 끝나면 60초 대기를 주는 파이썬 코드가 있으므로, 바로 대화가 시작될 걱정은 없다.
-            send_localhost_text("MOTION_DETECTED", 50002, 1);
         }
     }
 }

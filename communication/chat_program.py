@@ -74,6 +74,20 @@ class InteractivePlant:
     def wait_for_motion_signal(self):
         """모션 감지 신호를 기다립니다."""
         print("\n모션 감지 신호 대기 중...")
+
+        # 새로운 연결을 기다리기 전에 이전 연결이 있다면 모두 처리
+        self.motion_socket.setblocking(False)
+        while True:
+            try:
+                temp_socket, _ = self.motion_socket.accept()
+                temp_socket.close()
+            except BlockingIOError:
+                break
+            except socket.error:
+                break
+
+        # 다시 블로킹 모드로 설정하고 새로운 연결 대기
+        self.motion_socket.setblocking(True)
         client_socket, addr = self.motion_socket.accept()
 
         try:
@@ -111,6 +125,7 @@ class InteractivePlant:
                 "당신은 식물입니다. 사람들과 짧고 친근하게 대화하세요. "
                 "2-3문장 정도의 간단한 답변을 하되, 식물의 관점에서 자연스럽게 이야기하세요. "
                 "행동이나 동작을 묘사하지 말고, 순수하게 대화 내용만 전달하세요."
+                "이미 첫 인사를 한 상황이므로, 새롭게 인사하지 마세요"
             )
 
             messages = []
@@ -120,7 +135,7 @@ class InteractivePlant:
             messages.append({"role": "user", "content": user_input})
 
             response = self.claude_client.messages.create(
-                model="claude-3-sonnet-20240229",
+                model="claude-3-5-sonnet-latest",
                 max_tokens=1000,
                 system=system_prompt,
                 messages=messages,

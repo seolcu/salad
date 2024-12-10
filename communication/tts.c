@@ -104,6 +104,6 @@ int tts_talk(char *text)
         return -1;
     }
 
-    send_localhost_text(json_message, PORT, 0);
+    send_localhost_text(json_message, PORT, 1);
     return 0;
 }
