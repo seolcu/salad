@@ -15,9 +15,3 @@ int set_lcd_text(char *text)
     send_localhost_text(text, PORT, 0);
     return 0;
 }
-
-// int main()
-// {
-//     set_lcd_text("Hello, World!!!!!!!!!!");
-//     return 0;
-// }
