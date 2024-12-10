@@ -10,6 +10,6 @@ int get_brightness()
     // LDR_PIN을 입력 모드로 설정
     pinMode(PIN, INPUT);
     int light_val = digitalRead(PIN);
-    write_to_file_int("/tmp/light", light_val);
+    write_to_file_int("/tmp/brightness", light_val);
     return light_val;
 }
