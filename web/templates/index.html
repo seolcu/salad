@@ -1,213 +1,302 @@
-<!-- templates/index.html -->
 <!DOCTYPE html>
 <html lang="ko">
-<head>
+  <head>
     <title>샐러드</title>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"
+    />
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
 
-        body {
-            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-            min-height: 100vh;
-            padding: 20px;
-        }
+      body {
+        font-family: "Pretendard", -apple-system, BlinkMacSystemFont, system-ui,
+          Roboto, sans-serif;
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        min-height: 100vh;
+        padding: 20px;
+      }
 
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-        }
+      .container {
+        max-width: 800px;
+        margin: 0 auto;
+      }
 
-        h1 {
-            color: #2c3e50;
-            text-align: center;
-            margin: 40px 0;
-            font-size: 2.5em;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
-        }
+      h1 {
+        color: #2c3e50;
+        text-align: center;
+        margin: 40px 0;
+        font-size: 2.5em;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+      }
 
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+        padding: 20px;
+      }
+
+      .card {
+        background: rgba(255, 255, 255, 0.9);
+        padding: 25px;
+        border-radius: 15px;
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+        backdrop-filter: blur(5px);
+        border: 2px solid transparent;
+      }
+
+      .card.warning {
+        border-color: #e74c3c;
+        animation: pulse 2s infinite;
+      }
+
+      @keyframes pulse {
+        0% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.02);
+        }
+        100% {
+          transform: scale(1);
+        }
+      }
+
+      .card h2 {
+        color: #34495e;
+        margin-bottom: 15px;
+        font-size: 1.5em;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .value {
+        font-size: 28px;
+        font-weight: bold;
+        color: #2c3e50;
+        margin: 15px 0;
+        text-align: center;
+      }
+
+      .detail {
+        font-size: 14px;
+        color: #666;
+        margin-top: 8px;
+        text-align: center;
+      }
+
+      .warning .value {
+        color: #e74c3c;
+      }
+
+      .warning-text {
+        color: #e74c3c;
+        font-weight: bold;
+        font-size: 16px;
+        text-align: center;
+        margin-top: 10px;
+        display: none;
+      }
+
+      .warning .warning-text {
+        display: block;
+      }
+
+      .threshold {
+        display: inline-block;
+        margin: 0 5px;
+        padding: 2px 6px;
+        border-radius: 4px;
+        background: rgba(0, 0, 0, 0.1);
+      }
+
+      @media (max-width: 600px) {
         .grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 20px;
-            padding: 20px;
+          grid-template-columns: 1fr;
         }
+        h1 {
+          font-size: 2em;
+        }
+      }
 
-        .card {
-            background: rgba(255, 255, 255, 0.9);
-            padding: 25px;
-            border-radius: 15px;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
-            transition: transform 0.3s ease;
-            backdrop-filter: blur(5px);
-        }
+      .loading {
+        animation: pulse 2s infinite;
+      }
 
-        .card:hover {
-            transform: translateY(-5px);
-        }
+      .updated {
+        animation: highlight 1s;
+      }
 
-        .card h2 {
-            color: #34495e;
-            margin-bottom: 15px;
-            font-size: 1.5em;
-            display: flex;
-            align-items: center;
-            gap: 10px;
+      @keyframes highlight {
+        0% {
+          background-color: rgba(46, 204, 113, 0.2);
         }
-
-        .icon {
-            font-size: 1.8em;
+        100% {
+          background-color: rgba(255, 255, 255, 0.9);
         }
-
-        .value {
-            font-size: 28px;
-            font-weight: bold;
-            color: #2c3e50;
-            margin-top: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            min-height: 60px;
-            background: rgba(255, 255, 255, 0.5);
-            border-radius: 10px;
-            padding: 10px;
-        }
-
-        .status-good {
-            color: #27ae60;
-        }
-
-        .status-warning {
-            color: #e67e22;
-        }
-
-        .status-error {
-            color: #e74c3c;
-        }
-
-        @media (max-width: 600px) {
-            .grid {
-                grid-template-columns: 1fr;
-            }
-            h1 {
-                font-size: 2em;
-            }
-        }
-
-        .loading {
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0% { opacity: 1; }
-            50% { opacity: 0.5; }
-            100% { opacity: 1; }
-        }
-
-        .updated {
-            animation: highlight 1s;
-        }
-
-        @keyframes highlight {
-            0% { background-color: rgba(46, 204, 113, 0.2); }
-            100% { background-color: rgba(255, 255, 255, 0.5); }
-        }
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="container">
-        <h1 class="animate__animated animate__fadeIn">🥗 샐러드</h1>
-        <div class="grid">
-            <div class="card animate__animated animate__fadeInUp">
-                <h2>🌡️ 온도</h2>
-                <div id="temperature" class="value loading">측정중...</div>
-            </div>
-            <div class="card animate__animated animate__fadeInUp" style="animation-delay: 0.1s">
-                <h2>☀️ 밝기</h2>
-                <div id="brightness" class="value loading">측정중...</div>
-            </div>
-            <div class="card animate__animated animate__fadeInUp" style="animation-delay: 0.2s">
-                <h2>💧 토양 습도</h2>
-                <div id="soil_moisture" class="value loading">측정중...</div>
-            </div>
-            <div class="card animate__animated animate__fadeInUp" style="animation-delay: 0.3s">
-                <h2>📊 상태</h2>
-                <div id="status" class="value loading">측정중...</div>
-            </div>
+      <h1 class="animate__animated animate__fadeIn">🥗 샐러드</h1>
+      <div class="grid">
+        <div
+          id="temperature-card"
+          class="card animate__animated animate__fadeInUp"
+        >
+          <h2>🌡️ 온도</h2>
+          <div id="temperature" class="value loading">측정중...</div>
+          <div id="temperature-detail" class="detail"></div>
+          <div class="warning-text">온도가 적정 범위를 벗어났어요</div>
         </div>
+        <div
+          id="brightness-card"
+          class="card animate__animated animate__fadeInUp"
+          style="animation-delay: 0.1s"
+        >
+          <h2>☀️ 밝기</h2>
+          <div id="brightness" class="value loading">측정중...</div>
+          <div id="brightness-detail" class="detail"></div>
+          <div class="warning-text">햇빛이 부족해요</div>
+        </div>
+        <div
+          id="soil-card"
+          class="card animate__animated animate__fadeInUp"
+          style="animation-delay: 0.2s"
+        >
+          <h2>💧 토양 습도</h2>
+          <div id="soil_moisture" class="value loading">측정중...</div>
+          <div id="soil-detail" class="detail"></div>
+          <div class="warning-text">물을 주어야 할 때예요</div>
+        </div>
+      </div>
     </div>
 
     <script>
-        const lastValidValues = {
-            temperature: null,
-            brightness: null,
-            soil_moisture: null,
-            status: null
+      function translateBrightness(value) {
+        const translations = {
+          bright: "밝음",
+          dark: "어두움",
+          night_mode: "야간",
         };
+        return translations[value] || value;
+      }
 
-        function translateBrightness(value) {
-            const translations = {
-                'bright': '밝음',
-                'dark': '어두움',
-                'night_mode': '야간'
-            };
-            return translations[value] || value;
+      function updateThresholdDetails(data) {
+        // 온도 상세 정보
+        let tempThresholds = "";
+        const temp = data.raw_values.temperature;
+        if (data.is_daytime) {
+          tempThresholds = `적정 온도: <span class="threshold">${data.thresholds.temp_day_lower}°C</span> ~ <span class="threshold">${data.thresholds.temp_day_upper}°C</span>`;
+        } else {
+          tempThresholds = `적정 온도: <span class="threshold">${data.thresholds.temp_night_lower}°C</span> ~ <span class="threshold">${data.thresholds.temp_night_upper}°C</span>`;
+        }
+        document.getElementById("temperature-detail").innerHTML =
+          tempThresholds;
+
+        // 밝기 상세 정보
+        const timeInfo = data.is_daytime ? "주간" : "야간";
+        document.getElementById(
+          "brightness-detail"
+        ).innerHTML = `현재 시간대: <span class="threshold">${timeInfo}</span>`;
+
+        // 토양 습도 상세 정보
+        document.getElementById(
+          "soil-detail"
+        ).innerHTML = `최소 습도: <span class="threshold">${data.thresholds.soil_dry}%</span>`;
+      }
+
+      function updateValue(elementId, newValue, formatFunction = null) {
+        const element = document.getElementById(elementId);
+
+        if (!newValue && newValue !== 0) {
+          newValue = lastValidValues[elementId] || "측정중...";
+        } else {
+          lastValidValues[elementId] = newValue;
         }
 
-        function updateValue(elementId, newValue, formatFunction = null) {
-            const element = document.getElementById(elementId);
-            
-            // 새 값이 비어있거나 undefined인 경우 마지막 유효한 값을 사용
-            if (!newValue && newValue !== 0) {
-                newValue = lastValidValues[elementId] || '측정중...';
-            } else {
-                lastValidValues[elementId] = newValue;
-            }
-            
-            const formattedValue = formatFunction ? formatFunction(newValue) : newValue;
-            
-            if (element.textContent !== formattedValue) {
-                element.classList.add('updated');
-                element.classList.remove('loading');
-                element.textContent = formattedValue;
-                
-                setTimeout(() => {
-                    element.classList.remove('updated');
-                }, 1000);
-            }
+        const formattedValue = formatFunction
+          ? formatFunction(newValue)
+          : newValue;
+
+        if (element.textContent !== formattedValue) {
+          element.classList.add("updated");
+          element.classList.remove("loading");
+          element.textContent = formattedValue;
+
+          setTimeout(() => {
+            element.classList.remove("updated");
+          }, 1000);
         }
+      }
 
-        function updateData() {
-            fetch('/api/data')
-                .then(response => response.json())
-                .then(data => {
-                    updateValue('temperature', data.temperature);
-                    updateValue('brightness', data.brightness, translateBrightness);
-                    updateValue('soil_moisture', data.soil_moisture);
-                    updateValue('status', data.status || '정상');
+      function checkSensorStatus(data) {
+        // 온도 상태 체크
+        const temp = parseFloat(data.temperature);
+        const tempCard = document.getElementById("temperature-card");
+        const tempLower = data.is_daytime
+          ? data.thresholds.temp_day_lower
+          : data.thresholds.temp_night_lower;
+        const tempUpper = data.is_daytime
+          ? data.thresholds.temp_day_upper
+          : data.thresholds.temp_night_upper;
 
-                    // 상태에 따른 색상 변경
-                    const statusElement = document.getElementById('status');
-                    statusElement.className = 'value ' + 
-                        (data.status === '정상' || !data.status ? 'status-good' : 
-                         data.status.includes('!') ? 'status-error' : 'status-warning');
-                })
-                .catch(error => {
-                    console.error('데이터 업데이트 실패:', error);
-                });
-        }
+        tempCard.classList.toggle(
+          "warning",
+          temp < tempLower || temp > tempUpper
+        );
 
-        // 초기 로드
-        updateData();
-        // 1초마다 업데이트
-        setInterval(updateData, 1000);
+        // 밝기 상태 체크
+        const brightnessCard = document.getElementById("brightness-card");
+        brightnessCard.classList.toggle(
+          "warning",
+          data.is_daytime && data.brightness === "dark"
+        );
+
+        // 토양 습도 상태 체크
+        const soilMoisture = parseFloat(data.soil_moisture);
+        const soilCard = document.getElementById("soil-card");
+        soilCard.classList.toggle(
+          "warning",
+          soilMoisture <= data.thresholds.soil_dry
+        );
+      }
+
+      const lastValidValues = {
+        temperature: null,
+        brightness: null,
+        soil_moisture: null,
+      };
+
+      function updateData() {
+        fetch("/api/data")
+          .then((response) => response.json())
+          .then((data) => {
+            updateValue("temperature", data.temperature);
+            updateValue("brightness", data.brightness, translateBrightness);
+            updateValue("soil_moisture", data.soil_moisture);
+            updateThresholdDetails(data);
+            checkSensorStatus(data);
+          })
+          .catch((error) => {
+            console.error("데이터 업데이트 실패:", error);
+          });
+      }
+
+      // 초기 로드
+      updateData();
+      // 1초마다 업데이트
+      setInterval(updateData, 1000);
     </script>
-</body>
+  </body>
 </html>

@@ -465,6 +465,16 @@ int main(int argc, char *argv[])
 
     dotmatrix_init();
 
+    char threshold_string[256];
+    snprintf(threshold_string, sizeof(threshold_string),
+             "%.1f,%.1f,%.1f,%.1f,%.1f",
+             current_thresholds->temp_day_lower,
+             current_thresholds->temp_day_upper,
+             current_thresholds->temp_night_lower,
+             current_thresholds->temp_night_upper,
+             current_thresholds->soil_dry);
+    write_to_file("/tmp/thresholds", threshold_string);
+
     pthread_t threadId[5];
     int thread_status;
     int thread_join_status;
