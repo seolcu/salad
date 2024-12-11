@@ -290,7 +290,7 @@ void *t_temperature()
             log_sensor("온도", LOG_WARNING, temperature, "°C",
                        "너무 춥습니다. 따뜻한 곳으로 옮겨주세요.",
                        temp_lower, temp_upper);
-            tts_talk("여기는 너무 추워서 슬퍼요. 따뜻한 곳으로 옮겨주세요.");
+            tts_talk("너무 추워요. 따뜻한 곳으로 옮겨주세요.");
         }
         else if (temperature >= temp_upper)
         {
@@ -298,7 +298,7 @@ void *t_temperature()
             log_sensor("온도", LOG_WARNING, temperature, "°C",
                        "너무 덥습니다. 시원한 곳으로 옮겨주세요.",
                        temp_lower, temp_upper);
-            tts_talk("여기는 너무 더워요. 시원한 곳으로 옮겨주세요.");
+            tts_talk("너무 더워요. 시원한 곳으로 옮겨주세요.");
         }
         else
         {
@@ -338,7 +338,7 @@ void *t_soilmoisture()
             log_sensor("토양습도", LOG_WARNING, soilmoisture, "%",
                        "토양이 너무 건조합니다. 물을 주세요.",
                        current_thresholds->soil_dry, 100.0);
-            tts_talk("흙이 너무 건조해요. 저에게 물을 주세요.");
+            tts_talk("흙이 너무 건조해요. 제게 물을 주세요.");
         }
         else
         {
@@ -384,7 +384,7 @@ void *t_brightness()
                 log_sensor("조도(밝기)", LOG_WARNING, 0, "",
                            "햇빛이 부족합니다. 더 밝은 곳으로 옮겨주세요.",
                            0, 1);
-                tts_talk("여기는 너무 어두워요. 제가 햇빛을 받을 수 있게, 창가로 옮겨주세요.");
+                tts_talk("너무 어두워요. 햇빛이 드는 창가로 옮겨주세요.");
             }
             else
             {
